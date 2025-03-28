@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 //form
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -44,12 +44,23 @@ export default function Login() {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     setLoading(true);
-    toggleFullScreen()
     setTimeout(() => {
       setLoading(false);
     }, 2000);
     console.log(values);
   };
+
+  useEffect(() => {
+    const handleFullScreen = () => {
+      toggleFullScreen();
+    };
+
+    document.addEventListener("click", handleFullScreen);
+
+    return () => {
+      document.removeEventListener("click", handleFullScreen);
+    };
+  }, []);
 
   const pass = form.watch("password");
 
@@ -119,7 +130,7 @@ export default function Login() {
                         onClick={() => setShowPassword(!showPassword)}
                         className={`absolute inset-y-0 right-3 ${
                           pass != "" ? "flex" : "hidden"
-                        } items-center text-gray-500`}
+                        } items-center text-[var(--primary)]`}
                       >
                         {showPassword ? (
                           <Eye className="h-5 w-5" />

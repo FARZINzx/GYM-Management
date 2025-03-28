@@ -8,6 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 
 // Helper function : request to fullscreen and Exit fullscreen
 export function toggleFullScreen() {
+  if (typeof window === 'undefined') return;
+
   if (!document.fullscreenElement) {
     // Request fullscreen
     document.documentElement.requestFullscreen().catch((err) => {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import localFont from 'next/font/local'
+import localFont from "next/font/local";
+import { Toaster } from "react-hot-toast";
 
 const YekanBakh = localFont({
   src: [
@@ -20,8 +21,7 @@ const YekanBakh = localFont({
       style: "normal",
     },
   ],
-})
-
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -34,10 +34,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`antialiased ${YekanBakh.className}`}
-      >
+    <html lang="fa">
+      <body className={`antialiased ${YekanBakh.className}`}>
+        <Toaster position="top-center" reverseOrder={false} />
         {children}
       </body>
     </html>
