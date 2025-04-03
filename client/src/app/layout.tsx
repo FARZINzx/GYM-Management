@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
 import { Toaster } from "react-hot-toast";
-
+import BottomNav from "@/components/ui/bottom-nav";
+import { ManagerPanelItem } from "@/data/db";
 const YekanBakh = localFont({
   src: [
     {
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className={`antialiased ${YekanBakh.className}`}>
         <Toaster position="top-center" reverseOrder={false} />
         {children}
+        <BottomNav items={ManagerPanelItem} />
       </body>
     </html>
   );

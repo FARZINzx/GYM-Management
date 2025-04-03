@@ -85,7 +85,7 @@ export default function Register() {
   //   }, []);
 
   return (
-    <div className="w-full min-h-screen relative flex items-center justify-center">
+    <div className="w-full min-h-screen relative flex justify-center">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -96,7 +96,7 @@ export default function Register() {
           priority
         />
       </div>
-      <div className="z-10 flex flex-col items-center justify-center gap-10 ">
+      <div className="z-10 flex flex-col items-center justify-center gap-5 ">
         <p className="text-4xl text-[var(--secondary)]">ثبت نام</p>
         <Form {...form}>
           <form
