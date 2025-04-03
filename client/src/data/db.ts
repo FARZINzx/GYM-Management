@@ -1,5 +1,5 @@
 //interface
-import {IconButtonProps} from "@/data/type"
+import {IconButtonProps , Coach} from "@/data/type"
 //icon
 import { UserRoundPlus , TrendingUpDown , HandCoins , Anchor , ChartPie , Users } from "lucide-react";
 
@@ -26,7 +26,7 @@ export const ManagerPanelItem : IconButtonProps[] = [
           id : 4,
           label : "مربیان",
           icon : Anchor,
-          href : '/register'
+          href : '/coaches'
      },
      {
           id : 5,
@@ -82,4 +82,97 @@ export const CoachPanelItem : IconButtonProps[] = [
      },
 
 
+]
+
+export const CoachesDB : Coach[] = [
+     {
+          id : 1,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 2,
+          name : "محمد حسین حسینی",
+          present : false
+     },
+     {
+          id : 3,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 4,
+          name : "محمد حسین حسینی",
+          present : false
+     },
+     {
+          id : 5,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 6,
+          name : "محمد حسین حسینی",
+          present : false
+     },
+     {
+          id : 7,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 8,
+          name : "محمد حسین حسینی",
+          present : false
+     },
+     {
+          id : 9,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 10,
+          name : "محمد حسین حسینی",
+          present : false
+     },
+     {
+          id : 11,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 12,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 13,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+
+     {
+          id : 14,
+          name : "محمد حسین حسینی",
+          present : true
+     },{
+          id : 15,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 16,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 17,
+          name : "محمد حسین حسینی",
+          present : true
+     },
+     {
+          id : 18,
+          name : "محمد حسین حسینی",
+          present : true
+     },
 ]

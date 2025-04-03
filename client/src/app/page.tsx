@@ -10,15 +10,15 @@ import { ManagerPanelItem , ReceoptionPanelItem , CoachPanelItem } from "@/data/
 //interface
 import { IconButtonProps } from "@/data/type";
 
-const Item = ({ icon: Icon, label, size = 50, href, id }: IconButtonProps) => {
+const Item = ({ icon: Icon, label, href, id }: IconButtonProps) => {
   return (
     <Link
       href={href}
       key={id}
-      className="bg-[var(--secondary)] rounded-lg p-1 flex gap-3 flex-col items-center justify-center aspect-square hover:brightness-90  active:scale-90 duration-500 text-center"
+      className="bg-[var(--secondary)] rounded-lg p-1 flex gap-3 flex-col items-center justify-center aspect-square hover:brightness-90  active:scale-90 duration-500 text-center max-[400px]:text-sm text-lg"
     >
-      <Icon size={size} />
-      <span className="text-[var(--primary)] text-lg font-medium">
+      <Icon className="max-[400px]:size-10 size-15"/>
+      <span className="text-[var(--primary)] font-medium">
         {label}
       </span>
     </Link>
@@ -37,11 +37,11 @@ export default function Home() {
   // }, []);
   return (
     <main className="min-h-screen bg-[var(--primary)] ">
-      <div className=" max-w-[430px] relative">
+      <div className="max-w-[430px] mx-auto">
         {/* Header */}
         <Header type='page'/>
-        <div className="flex flex-col gap-12 mx-auto px-10">
-          <h2 className="text-3xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
+        <div className="flex flex-col gap-12 px-10">
+          <h2 className="text-3xl max-[400px]:text-2xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
             پنل مدیریت
           </h2>
           {/* Grid of Management Options */}
