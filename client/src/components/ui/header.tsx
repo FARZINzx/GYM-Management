@@ -9,13 +9,13 @@ const MenuHeader = () => {
   const handleLogout = useCallback(() => router.push("/login"), [router]);
 
   return (
-    <div className="absolute top-0 w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
+    <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
       <div className="flex items-center w-full justify-center h-full relative">
         <LogOut
-          className="w-9 h-9 absolute right-3 duration-300 active:scale-90"
+          className="max-[400px]:size-8 size-9 absolute right-3 duration-300 active:scale-90"
           onClick={handleLogout}
         />
-        <h1 className="text-2xl font-semibold">باشگاه بدنسازی</h1>
+        <h1 className="text-2xl max-[400px]:text-xl font-semibold">باشگاه بدنسازی</h1>
       </div>
     </div>
   );
@@ -35,15 +35,15 @@ const PageHeader = () => {
   }, []);
 
   return (
-    <div className="absolute top-0 w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
+    <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
       <div className="flex items-center w-full justify-between h-full px-2">
         <ChevronLeft
-          className="size-9 duration-300 active:-translate-x-1"
+          className="max-[400px]:size-8 size-9 duration-300 active:-translate-x-1"
           onClick={handleBack}
         />
-        <h1 className="text-2xl font-semibold">باشگاه بدنسازی</h1>
+        <h1 className="text-2xl max-[400px]:text-xl font-semibold">باشگاه بدنسازی</h1>
         <RefreshCw
-          className={`size-9 duration-300 ${isSpinning ? "animate-spin" : ""}`}
+          className={`max-[400px]:size-8 size-9 duration-300 ${isSpinning ? "animate-spin" : ""}`}
           onClick={handleRefresh}
         />
       </div>

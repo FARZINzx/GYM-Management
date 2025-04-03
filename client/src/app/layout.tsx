@@ -39,7 +39,6 @@ export default function RootLayout({
       <body className={`antialiased ${YekanBakh.className}`}>
         <Toaster position="top-center" reverseOrder={false} />
         {children}
-        <BottomNav items={ManagerPanelItem} />
       </body>
     </html>
   );

@@ -7,3 +7,11 @@ export interface IconButtonProps {
      size?: number;
      href: string;
    }
+
+export interface Coach {
+     id : number
+     name : string
+     present : boolean
+}
+
+
