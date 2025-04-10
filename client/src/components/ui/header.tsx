@@ -1,12 +1,17 @@
 "use client";
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+//utils
+import { deleteCookie } from "@/action/cookie";  
 //icon
 import { LogOut, ChevronLeft, RefreshCw } from "lucide-react";
 
 const MenuHeader = () => {
   const router = useRouter();
-  const handleLogout = useCallback(() => router.push("/login"), [router]);
+  const handleLogout = useCallback(() => {
+    deleteCookie("token");
+    router.refresh()
+  }, [router]);
 
   return (
     <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
