@@ -25,6 +25,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 // Define response type
 type LoginResponse = {
+  message: string;
   success: boolean;
   data: {
     token: string;

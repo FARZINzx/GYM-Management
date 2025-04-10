@@ -7,6 +7,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({
       success: true,
+      message: "ورود با موفقیت انجام شد",
       status: 200,
       data: { token },
     });
@@ -14,6 +15,7 @@ export const login = async (req, res) => {
     res.status(401).json({
       success: false,
       message: error.message,
+      status: 401,
     });
   }
 };
