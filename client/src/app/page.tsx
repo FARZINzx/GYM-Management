@@ -39,7 +39,7 @@ export default function Home() {
     <main className="min-h-screen bg-[var(--primary)] ">
       <div className="max-w-[430px] mx-auto">
         {/* Header */}
-        <Header type='page'/>
+        <Header type="menu"/>
         <div className="flex flex-col gap-12 px-10">
           <h2 className="text-3xl max-[400px]:text-2xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
             پنل مدیریت

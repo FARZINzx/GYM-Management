@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 //form
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -17,12 +18,26 @@ import {
 //utils
 import Spinner from "@/components/loading/LoadingSpinner";
 import { toggleFullScreen } from "@/lib/utils";
+import { setCookie } from "@/action/cookie";
+import toast from "react-hot-toast";
 //icon
 import { Eye, EyeOff } from "lucide-react";
 
+// Define response type
+type LoginResponse = {
+  message: string;
+  success: boolean;
+  data: {
+    token: string;
+  };
+  status: number;
+};
+
 export default function Login() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const formSchema = z.object({
     username: z.string().nonempty({ message: "نام کاربری وارد نشده است" }),
@@ -42,12 +57,50 @@ export default function Login() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    setLoading(true);
-    setTimeout(() => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch("http://localhost:3001/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data: LoginResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "خطا در ورود به سیستم");
+      }
+
+      if (data.success) {
+        setCookie("token", data.data.token);
+        toast.success("ورود با موفقیت انجام شد", {
+          style: {
+            background: "#31C440",
+            color: "#fff",
+          },
+        });
+        router.push("/");
+      } else {
+        throw new Error(data.message || "خطا در ورود به سیستم");
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "خطا در ورود به سیستم";
+      setError(errorMessage);
+      toast.error(errorMessage, {
+        style: {
+          background: "#FF4444",
+          color: "#fff",
+        },
+      });
+    } finally {
       setLoading(false);
-    }, 2000);
-    console.log(values);
+    }
   };
 
   useEffect(() => {
@@ -78,7 +131,7 @@ export default function Login() {
         {/* Optional overlay for better text readability */}
         <div className="absolute inset-0 bg-black/30" />
       </div>
-      <div className="z-10 flex flex-col items-center justify-center gap-10 ">
+      <div className="z-10 flex flex-col items-center justify-center gap-10">
         <p className="text-5xl text-[var(--secondary)]">ورود</p>
         <Form {...form}>
           <form
@@ -100,7 +153,8 @@ export default function Login() {
                       {...field}
                       type="text"
                       dir="ltr"
-                      className="h-12 w-full rounded-lg border border-[var(--primary) bg-transparent px-3 text-[var(--primary)] outline-0"
+                      className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                      disabled={loading}
                     />
                   </FormControl>
                   <FormMessage dir="rtl" className="text-red-600" />
@@ -124,6 +178,7 @@ export default function Login() {
                         type={showPassword ? "text" : "password"}
                         {...field}
                         className={`h-12 w-full rounded-lg border border-midnightNavy bg-transparent px-3 text-midnightNavy outline-0`}
+                        disabled={loading}
                       />
                       <button
                         type="button"
@@ -131,6 +186,7 @@ export default function Login() {
                         className={`absolute inset-y-0 right-3 ${
                           pass != "" ? "flex" : "hidden"
                         } items-center text-[var(--primary)]`}
+                        disabled={loading}
                       >
                         {showPassword ? (
                           <Eye className="h-5 w-5" />
@@ -144,9 +200,15 @@ export default function Login() {
                 </FormItem>
               )}
             />
+            {error && (
+              <div className="text-red-600 text-center text-sm" dir="rtl">
+                {error}
+              </div>
+            )}
             <Button
-              className="h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold hover:brightness-90 active:scale-95 duration-500"
+              className="h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold hover:brightness-90 active:scale-95 duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
+              disabled={loading}
             >
               {loading ? <Spinner /> : "ورود"}
             </Button>
