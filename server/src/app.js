@@ -5,7 +5,6 @@ import authRoutes from "./routes/authRoute.js";
 
 const app = express();
 
-// Enable CORS first
 app.use(
   cors({
     origin: env.NODE_ENV === "development" ? "*" : env.FRONTEND_URL,
@@ -14,7 +13,6 @@ app.use(
   })
 );
 
-// Parse JSON bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
