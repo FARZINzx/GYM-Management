@@ -14,15 +14,15 @@ export default {
       [username]
     );
 
-    if (rows.length === 0) throw new Error("Invalid username or password");
+    if (rows.length === 0) throw new Error("کاربری با این مشخصات وجود ندارد.");
 
     const user = rows[0];
 
-    if (!user.is_active) throw new Error("Account is not active");
+    if (!user.is_active) throw new Error("این حساب کاربری فعال نیست.");
 
     const validPassword = await bcrypt.compare(password, user.password_hash);
 
-    if (!validPassword) throw new Error("Invalid username or password");
+    if (!validPassword) throw new Error("نام کاربری یا رمز عبور اشتباه است.");
 
     return this.generateToken(user);
   },
