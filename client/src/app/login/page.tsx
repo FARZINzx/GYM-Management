@@ -71,18 +71,19 @@ export default function Login() {
       });
 
       const data: LoginResponse = await response.json();
-
+      
       if (!response.ok) {
         throw new Error(data.message || "خطا در ورود به سیستم");
       }
 
       if (data.success) {
         setCookie("token", data.data.token);
-        toast.success("ورود با موفقیت انجام شد", {
+        toast.success(data.message, {
           style: {
             background: "#31C440",
             color: "#fff",
           },
+          duration : 2000
         });
         router.push("/");
       } else {
@@ -92,12 +93,6 @@ export default function Login() {
       const errorMessage =
         error instanceof Error ? error.message : "خطا در ورود به سیستم";
       setError(errorMessage);
-      toast.error(errorMessage, {
-        style: {
-          background: "#FF4444",
-          color: "#fff",
-        },
-      });
     } finally {
       setLoading(false);
     }
