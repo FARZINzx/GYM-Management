@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import {query} from './src/config/db.js';
+import {query} from '../server/src/config/db.js';
 
 const seedTestUsers = async () => {
   const testUsers = [
