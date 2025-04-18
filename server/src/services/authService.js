@@ -24,7 +24,10 @@ export default {
 
     if (!validPassword) throw new Error("نام کاربری یا رمز عبور اشتباه است.");
 
-    return this.generateToken(user);
+    return {
+     token : this.generateToken(user),
+     role : user.role
+    };
   },
 
   generateToken(user) {

@@ -1,24 +1,15 @@
 import bcrypt from 'bcrypt';
-import {query} from './src/config/db.js';
+import {query} from '../server/src/config/db.js';
 
 const seedTestUsers = async () => {
   const testUsers = [
     {
-      first_name: 'Gym',
-      last_name: 'Admin',
-      username: 'admin',
-      password: 'AdminPass123!',
-      role: 'admin',
-      phone: '+1111111111',
-      birth_date: '1985-01-01'
-    },
-    {
-      first_name: 'John',
-      last_name: 'Trainer',
-      username: 'trainer1',
-      password: 'TrainerPass123!',
+      first_name: 'farzin',
+      last_name: 'hamzehi',
+      username: 'farzin',
+      password: 'farzin3474',
       role: 'trainer',
-      phone: '+1222222222',
+      phone: '+1222222223',
       birth_date: '1990-05-15'
     }
   ];

@@ -29,6 +29,7 @@ type LoginResponse = {
   success: boolean;
   data: {
     token: string;
+    role : string
   };
   status: number;
 };
@@ -78,6 +79,7 @@ export default function Login() {
 
       if (data.success) {
         setCookie("token", data.data.token);
+        setCookie('role' , data.data.role)
         toast.success(data.message, {
           style: {
             background: "#31C440",
@@ -98,17 +100,17 @@ export default function Login() {
     }
   };
 
-  useEffect(() => {
-    const handleFullScreen = () => {
-      toggleFullScreen();
-    };
+  // useEffect(() => {
+  //   const handleFullScreen = () => {
+  //     toggleFullScreen();
+  //   };
 
-    document.addEventListener("click", handleFullScreen);
+  //   document.addEventListener("click", handleFullScreen);
 
-    return () => {
-      document.removeEventListener("click", handleFullScreen);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener("click", handleFullScreen);
+  //   };
+  // }, []);
 
   const pass = form.watch("password");
 

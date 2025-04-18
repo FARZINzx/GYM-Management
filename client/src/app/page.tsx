@@ -1,10 +1,12 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect , useState } from "react";
 //components
 // import { toggleFullScreen } from "@/lib/utils";
 // import LoadingScreen from "@/components/loading/loadingScreen";
 import Header from "@/components/ui/header";
 import Link from "next/link";
+//utils
+import { getCookie } from "@/action/cookie";
 //db
 import { ManagerPanelItem , ReceoptionPanelItem , CoachPanelItem } from "@/data/db";
 //interface
@@ -26,6 +28,15 @@ const Item = ({ icon: Icon, label, href, id }: IconButtonProps) => {
 };
 
 export default function Home() {
+  const [role, setRole] = useState<string>('')
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      const roleCookie = await getCookie('role')
+      setRole(roleCookie || '')
+    }
+    fetchRole()
+  }, [])
 
   // useEffect(() => {
   //   const handleClick = () => {
@@ -35,6 +46,7 @@ export default function Home() {
   //   document.addEventListener("click", handleClick);
   //   return () => document.removeEventListener("click", handleClick);
   // }, []);
+
   return (
     <main className="min-h-screen bg-[var(--primary)] ">
       <div className="max-w-[430px] mx-auto">
@@ -42,11 +54,12 @@ export default function Home() {
         <Header type="menu"/>
         <div className="flex flex-col gap-12 px-10">
           <h2 className="text-3xl max-[400px]:text-2xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
-            پنل مدیریت
+            {role === "manager" ? " پنل مدیریت" : role === 'receptionist' ? "پنل منشی" : "پنل مربی" }
+           
           </h2>
           {/* Grid of Management Options */}
           <div className="grid grid-cols-2 gap-4 ">
-            {ManagerPanelItem.map((item : IconButtonProps) => (
+          {role === "manager" ? ManagerPanelItem.map((item : IconButtonProps) => (
               <Item
                 label={item.label}
                 href={item.href}
@@ -54,7 +67,23 @@ export default function Home() {
                 id={item.id}
                 key={item.id}
               />
-            ))}
+            )) : role === 'receptionist' ? ReceoptionPanelItem.map((item : IconButtonProps) => (
+              <Item
+                label={item.label}
+                href={item.href}
+                icon={item.icon}
+                id={item.id}
+                key={item.id}
+              />
+            )) : CoachPanelItem.map((item : IconButtonProps) => (
+              <Item
+                label={item.label}
+                href={item.href}
+                icon={item.icon}
+                id={item.id}
+                key={item.id}
+              />
+            ))}          
           </div>
         </div>
       </div>
