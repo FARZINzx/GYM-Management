@@ -72,3 +72,41 @@ CREATE TABLE attendance (
   check_out TIMESTAMPTZ,
   notes TEXT
 );
+
+
+CREATE TABLE users (
+                       id             UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+                       first_name     CITEXT          NOT NULL,
+                       last_name      CITEXT          NOT NULL,
+                       age           INTEGER        NOT NULL CHECK (age >= 0 AND age <= 120),
+                       phone          phone_e164      NOT NULL,
+                       gender         gender_enum     NOT NULL,
+
+    -- store raw measurements, compute BMI automatically:
+                       weight_kg      NUMERIC(5,2)    NOT NULL CHECK (weight_kg > 0),
+                       height_cm      NUMERIC(5,2)    NOT NULL CHECK (height_cm > 0),
+                       bmi            NUMERIC(5,2)
+                           GENERATED ALWAYS AS (
+                           weight_kg / ((height_cm/100)^2)
+    ) STORED,
+
+  trainer_id     SERIAL            REFERENCES employee(id)
+                   ON DELETE SET NULL,
+  is_fee_paid    BOOLEAN         NOT NULL DEFAULT FALSE,
+
+  created_at     TIMESTAMPTZ     NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ     NOT NULL DEFAULT now()
+);
+
+CREATE OR REPLACE FUNCTION set_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at := now();
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_users_timestamp
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+    EXECUTE FUNCTION set_timestamp();
