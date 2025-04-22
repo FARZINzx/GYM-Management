@@ -2,14 +2,23 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 //utils
-import { deleteCookie } from "@/action/cookie";  
+import { deleteCookie } from "@/action/cookie";
+import toast from "react-hot-toast";
 //icon
 import { LogOut, ChevronLeft, RefreshCw } from "lucide-react";
+
 
 const MenuHeader = () => {
   const router = useRouter();
   const handleLogout = useCallback(() => {
     deleteCookie("token");
+    toast.success('خروج با موفقیت انجام شد', {
+      style: {
+        background: "#31C440",
+        color: "#fff",
+      },
+      duration : 2000
+    });
     router.refresh()
   }, [router]);
 
