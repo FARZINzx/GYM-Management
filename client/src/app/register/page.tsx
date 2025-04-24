@@ -78,14 +78,13 @@ export default function Register() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    first_name: values.familyName,
+                    first_name: values.name,
                     last_name: values.familyName,
                     phone: values.phone,
                     age: values.age,
                     weight_kg: Number(values.weight),
                     height_cm: Number(values.height),
                     gender: values.gender,
-                    // trainer_id: اختیاریه، اگر داری می‌تونی اضافه کنی
                 }),
             });
 
@@ -97,15 +96,20 @@ export default function Register() {
                         background: "#31C440",
                         color: "#fff",
                     },
-                    duration : 2000
+                    duration: 2000
                 });
                 form.reset();
-                setTimeout(()=>{
-                    router.push("/");
-                },1000)
+                toast.promise(new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve(true)
+                        router.push("");
+                    }, 1500)
+                }), {
+                    loading: 'در حال بازگشت به صفحه اصلی...',
+                });
 
             } else {
-                toast.error(data.message || 'خطایی رخ داده است' , {
+                toast.error(data.message || 'خطایی رخ داده است', {
                     style: {
                         background: "red",
                         color: "#fff",
@@ -113,7 +117,7 @@ export default function Register() {
                 });
             }
         } catch (error) {
-            toast.error('مشکل در ارتباط با سرور' , {
+            toast.error('مشکل در ارتباط با سرور', {
                 style: {
                     background: "red",
                     color: "#fff",
@@ -139,7 +143,10 @@ export default function Register() {
     //   }, []);
 
     return (
-        <div className="w-full min-h-screen relative flex justify-center">
+        <div className="w-full min-h-screen relative flex justify-center relative">
+            <button className='absolute z-40 left-2 top-2 active:scale-95 duration-300 w-20 h-10 text-sm  rounded-lg bg-[var(--secondary)]'
+                    onClick={() => router.back()}>بازگشت
+            </button>
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <Image
@@ -172,7 +179,7 @@ export default function Register() {
                                             {...field}
                                             type="text"
                                             dir="ltr"
-                                            className="h-12 w-full rounded-lg border border-[var(--primary) bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -194,7 +201,7 @@ export default function Register() {
                                             {...field}
                                             type="text"
                                             dir="ltr"
-                                            className="h-12 w-full rounded-lg border border-[var(--primary) bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -218,7 +225,7 @@ export default function Register() {
                                             dir="ltr"
                                             pattern="[0-9]*"
                                             inputMode="numeric"
-                                            className="h-12 w-full rounded-lg border border-[var(--primary) bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -241,7 +248,7 @@ export default function Register() {
                                             type="number"
                                             dir="ltr"
                                             onChange={(e) => field.onChange(Number(e.target.value))}
-                                            className="h-12 w-full rounded-lg border border-[var(--primary) bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -264,7 +271,7 @@ export default function Register() {
                                             type="number"
                                             dir="ltr"
                                             onChange={(e) => field.onChange(e.target.value)}
-                                            className="h-12 w-full rounded-lg border border-[var(--primary) bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -288,7 +295,7 @@ export default function Register() {
                                             dir="ltr"
                                             min="50"
                                             onChange={(e) => field.onChange(e.target.value)}
-                                            className="h-12 w-full rounded-lg border border-[var(--primary) bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>

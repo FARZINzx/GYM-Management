@@ -19,7 +19,7 @@ export default function Coaches() {
       <div className="max-w-[430px] mx-auto relative">
         {/* Header */}
         <Header type="page" />
-        <div className="flex flex-col gap-12 mx-auto px-10">
+        <div className="flex flex-col gap-12 mx-auto px-6">
           <h2 className="text-3xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
             مربیان
           </h2>
@@ -38,7 +38,7 @@ export default function Coaches() {
             <div className="flex flex-col gap-2 overflow-y-scroll">
               {CoachesDB.map((item: Coach) => (
                 <Link
-                  href={`/coaches/${item.id}`}
+                  href={`/trainers/${item.id}`}
                   key={item.id}
                   className="w-full grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl flex-row-reverse py-2 active:scale-90 duration-500"
                 >
