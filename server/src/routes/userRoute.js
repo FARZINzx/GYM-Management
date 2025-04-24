@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {body} from "express-validator";
 import {registerController} from "../controllers/registerController.js";
+import {getAllUsers} from "../controllers/userController.js";
 
 const router = Router();
 
@@ -17,5 +18,7 @@ router.post(
     ],
     registerController
 )
+
+router.get("/" , getAllUsers)
 
 export default router;

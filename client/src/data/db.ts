@@ -26,7 +26,7 @@ export const ManagerPanelItem : IconButtonProps[] = [
           id : 4,
           label : "مربیان",
           icon : Anchor,
-          href : '/coaches'
+          href : '/trainers'
      },
      {
           id : 5,
@@ -38,7 +38,7 @@ export const ManagerPanelItem : IconButtonProps[] = [
           id : 6,
           label : "کاربران",
           icon : Users,
-          href : '/register'
+          href : '/users'
      },
 
 
@@ -61,7 +61,7 @@ export const ReceoptionPanelItem : IconButtonProps[] = [
           id : 6,
           label : "کاربران",
           icon : Users,
-          href : '/'
+          href : '/users'
      },
 
 
