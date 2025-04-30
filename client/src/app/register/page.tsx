@@ -21,7 +21,18 @@ import Spinner from "@/components/loading/LoadingSpinner";
 import {useRouter} from "next/navigation";
 // import {toggleFullScreen} from "@/lib/utils";
 import toast from "react-hot-toast";
-//icon
+import DatePicker from "react-multi-date-picker"
+import persian from "react-date-object/calendars/persian"
+import persian_fa from "react-date-object/locales/persian_fa"
+import transition from "react-element-popper/animations/transition"
+import opacity from "react-element-popper/animations/opacity"
+import "react-multi-date-picker/styles/layouts/mobile.css"
+import "react-multi-date-picker/styles/colors/yellow.css"
+import "react-multi-date-picker/styles/backgrounds/bg-dark.css"
+
+
+
+
 
 export default function Register() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -35,10 +46,9 @@ export default function Register() {
             .string({required_error: "شماره تلفن وارد نشده است"})
             .min(11, {message: "شماره تلفن باید ۱۱ رقم باشد"})
             .regex(/^[0-9]+$/, {message: "شماره تلفن فقط باید شامل اعداد باشد"}),
-        age: z
-            .number({
-                required_error: "سن وارد نشده است",
-                invalid_type_error: "سن باید عدد باشد",
+        birth: z
+            .string({
+                required_error: "تاریخ تولد وارد نشده است",
             })
             .min(10, {message: "سن باید بزرگتر از ۱۰ باشد"})
             .max(120, {message: "سن نمی‌تواند بیشتر از ۱۲۰ باشد"}),
@@ -61,7 +71,7 @@ export default function Register() {
             name: '',
             familyName: '',
             phone: '',
-            age: 0,
+            birth: '',
             weight: '',
             height: '',
             gender: 'male' // or 'female' as default
@@ -81,7 +91,7 @@ export default function Register() {
                     first_name: values.name,
                     last_name: values.familyName,
                     phone: values.phone,
-                    age: values.age,
+                    birth_date: values.birth,
                     weight_kg: Number(values.weight),
                     height_cm: Number(values.height),
                     gender: values.gender,
@@ -143,9 +153,10 @@ export default function Register() {
     //   }, []);
 
     return (
-        <div className="w-full min-h-screen relative flex justify-center relative">
-            <button className='absolute z-40 left-2 top-2 active:scale-95 duration-300 w-20 h-10 text-sm  rounded-lg bg-[var(--secondary)]'
-                    onClick={() => router.back()}>بازگشت
+        <div className="w-full min-h-screen relative flex justify-center">
+            <button
+                className='absolute z-40 left-2 top-2 active:scale-95 duration-300 w-20 h-10 text-sm  rounded-lg bg-[var(--secondary)]'
+                onClick={() => router.back()}>بازگشت
             </button>
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
@@ -179,7 +190,7 @@ export default function Register() {
                                             {...field}
                                             type="text"
                                             dir="ltr"
-                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -201,7 +212,7 @@ export default function Register() {
                                             {...field}
                                             type="text"
                                             dir="ltr"
-                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -225,7 +236,7 @@ export default function Register() {
                                             dir="ltr"
                                             pattern="[0-9]*"
                                             inputMode="numeric"
-                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -233,23 +244,40 @@ export default function Register() {
                             )}
                         />
                         <FormField
-                            name="age"
+                            name="birth"
                             control={form.control}
                             render={({field}) => (
                                 <FormItem className="relative w-full">
                                     <div
                                         className={`absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]`}
                                     >
-                                        سن
+                                        تاریخ تولد
                                     </div>
                                     <FormControl>
-                                        <input
-                                            {...field}
-                                            type="number"
-                                            dir="ltr"
-                                            onChange={(e) => field.onChange(Number(e.target.value))}
-                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
-                                        />
+                                        <div
+                                            className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            style={{direction: "rtl"}}>
+                                            <DatePicker
+                                                value={field.value || ""}
+                                                onChange={(date) => {
+                                                    console.log(date)
+                                                    field.onChange(date?.isValid ? date : "");
+                                                }}
+                                                format="YYYY/MM/DD"
+                                                calendar={persian}
+                                                locale={persian_fa}
+                                                calendarPosition="bottom-right"
+                                                style={{border: 0, outline: 0}}
+                                                className="rmdp-mobile yellow bg-dark"
+                                                animations={[
+                                                    opacity(),
+                                                    transition({
+                                                        from: 40,
+                                                        transition: "all 400ms cubic-bezier(0.335, 0.010, 0.030, 1.360)",
+                                                    }),
+                                                ]}
+                                            />
+                                        </div>
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
                                 </FormItem>
@@ -271,7 +299,7 @@ export default function Register() {
                                             type="number"
                                             dir="ltr"
                                             onChange={(e) => field.onChange(e.target.value)}
-                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
@@ -295,7 +323,7 @@ export default function Register() {
                                             dir="ltr"
                                             min="50"
                                             onChange={(e) => field.onChange(e.target.value)}
-                                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600"/>
