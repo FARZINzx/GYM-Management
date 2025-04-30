@@ -153,7 +153,7 @@ export default function Register() {
     //   }, []);
 
     return (
-        <div className="w-full min-h-screen relative flex justify-center relative">
+        <div className="w-full min-h-screen relative flex justify-center">
             <button
                 className='absolute z-40 left-2 top-2 active:scale-95 duration-300 w-20 h-10 text-sm  rounded-lg bg-[var(--secondary)]'
                 onClick={() => router.back()}>بازگشت
