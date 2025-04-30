@@ -1,140 +1,205 @@
-CREATE
-EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE
-EXTENSION IF NOT EXISTS "pgcrypto";
+-- ========================================================
+-- Schema: Gym Management – Complete SQL Script
+-- PostgreSQL DDL
+-- ========================================================
 
-CREATE TABLE employee
+-- 1. Create reusable gender enum type
+CREATE TYPE gender_type AS ENUM ('male', 'female');
+
+-- 2. Roles lookup
+CREATE TABLE roles
 (
-    -- Core Identification
-    id                SERIAL PRIMARY KEY,
-    first_name        VARCHAR(50)        NOT NULL,
-    last_name         VARCHAR(50)        NOT NULL,
-
-    -- Authentication
-    username          VARCHAR(30) UNIQUE NOT NULL,
-    password_hash     VARCHAR(255)       NOT NULL, -- Store bcrypt hashes only
-    token             VARCHAR(255),                -- For JWT/refresh tokens
-
-    -- Role Management
-    role              VARCHAR(20)        NOT NULL CHECK (role IN ('trainer', 'admin', 'receptionist', 'manager')),
-
-    -- Contact Info
-    phone             VARCHAR(20) UNIQUE NOT NULL,
-
-    -- Professional Details
-    sport_background  TEXT,
-    count_of_students INTEGER     DEFAULT 0 CHECK (count_of_students >= 0),
-
-    -- Status Flags
-    is_active         BOOLEAN     DEFAULT FALSE,
-
-    -- Timestamps
-    created_at        TIMESTAMPTZ DEFAULT NOW(),
-    updated_at        TIMESTAMPTZ DEFAULT NOW(),
-    last_login        TIMESTAMPTZ,
-
-    -- Age/Birthdate (more flexible than just age)
-    birth_date        DATE,
-
-    -- Constraints
-    CONSTRAINT username_format CHECK (username ~* '^[a-z0-9_]+$'
-) ,
-  CONSTRAINT phone_format CHECK (phone ~* '^[0-9+\- ]+$')
+    role_id   SERIAL PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- Indexes for performance
-CREATE INDEX idx_employee_role ON employee (role);
-CREATE INDEX idx_employee_is_active ON employee (is_active);
-CREATE INDEX idx_employee_phone ON employee (phone);
+-- 3. Core employee table
+CREATE TABLE employee
+(
+    id         SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name  VARCHAR(50) NOT NULL,
+    birth_date DATE        NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    is_active  BOOLEAN     NOT NULL DEFAULT TRUE,
+    role_id    INTEGER     NOT NULL
+        REFERENCES roles (role_id)
+            ON UPDATE CASCADE
+            ON DELETE RESTRICT
+);
 
--- Automatically update updated_at
-CREATE
-OR REPLACE FUNCTION update_employee_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at
-= NOW();
-RETURN NEW;
-END;
+-- 4. Trigger function to auto-update employee.updated_at
+CREATE OR REPLACE FUNCTION trg_set_employee_updated_at()
+    RETURNS TRIGGER AS
 $$
-LANGUAGE plpgsql;
+BEGIN
+    NEW.updated_at := now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_employee_updated_at
+-- 5. Attach trigger to employee table
+CREATE TRIGGER employee_updated_at_trg
     BEFORE UPDATE
     ON employee
     FOR EACH ROW
-    EXECUTE FUNCTION update_employee_updated_at();
+EXECUTE PROCEDURE trg_set_employee_updated_at();
 
--- For salary tracking (better than boolean flag)
-CREATE TABLE salaries
+-- 6. Employee authentication details
+CREATE TABLE employee_auth
 (
-    employee_id  INTEGER REFERENCES employee (id),
-    amount       DECIMAL(10, 2) NOT NULL,
-    payment_date DATE           NOT NULL,
-    cycle        VARCHAR(10) CHECK (cycle IN ('monthly', 'weekly', 'biweekly'))
+    id            INTEGER PRIMARY KEY
+        REFERENCES employee (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+    username      VARCHAR(30)  NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL
 );
 
--- For attendance (better than is_present flag)
-CREATE TABLE attendance
+-- 7. Employee login history
+CREATE TABLE employee_login
 (
-    employee_id INTEGER REFERENCES employee (id),
-    check_in    TIMESTAMPTZ DEFAULT NOW(),
-    check_out   TIMESTAMPTZ,
-    notes       TEXT
+    login_id    SERIAL PRIMARY KEY,
+    employee_id INTEGER     NOT NULL
+        REFERENCES employee (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+    login_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 8. Employee contact information
+CREATE TABLE employee_contacts
+(
+    employee_id INTEGER PRIMARY KEY
+        REFERENCES employee (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+    phone       VARCHAR(11),
+    address     TEXT
+);
+
+-- 9. Employee salary history
+CREATE TABLE employee_salary
+(
+    salary_id   SERIAL PRIMARY KEY,
+    employee_id INTEGER        NOT NULL
+        REFERENCES employee (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+    amount      NUMERIC(10, 2) NOT NULL,
+    created_at  TIMESTAMPTZ    NOT NULL DEFAULT now()
 );
 
 
+-- 10. Employee attendance records
+CREATE TABLE employee_attendance
+(
+    attendance_id   SERIAL PRIMARY KEY,
+    employee_id     INTEGER     NOT NULL
+        REFERENCES employee (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+    attendance_date DATE        NOT NULL,
+    check_in_time   TIMESTAMPTZ,
+    check_out_time  TIMESTAMPTZ,
+    status          VARCHAR(20) NOT NULL DEFAULT 'absent'
+        CHECK (status IN ('present', 'absent', 'leave'))
+);
+
+
+-- --------------------------------------------------------
+-- 11. Users (gym members) table
 CREATE TABLE users
 (
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    first_name CITEXT        NOT NULL,
-    last_name  CITEXT        NOT NULL,
-    age        INTEGER       NOT NULL CHECK (age >= 0 AND age <= 120),
-    phone      phone_e164    NOT NULL,
-    gender     gender_enum   NOT NULL,
-
-    -- store raw measurements, compute BMI automatically:
-    weight_kg  NUMERIC(5, 2) NOT NULL CHECK (weight_kg > 0),
-    height_cm  NUMERIC(5, 2) NOT NULL CHECK (height_cm > 0),
-    bmi        NUMERIC(5, 2)
-        GENERATED ALWAYS AS (
-        weight_kg / ((height_cm/100)^2
-)
-    ) STORED,
-
-  trainer_id     SERIAL            REFERENCES employee(id)
-                   ON DELETE SET NULL,
-  is_fee_paid    BOOLEAN         NOT NULL DEFAULT FALSE,
-
-  created_at     TIMESTAMPTZ     NOT NULL DEFAULT now(),
-  updated_at     TIMESTAMPTZ     NOT NULL DEFAULT now()
+    id          SERIAL PRIMARY KEY,
+    first_name  VARCHAR(50)   NOT NULL,
+    last_name   VARCHAR(50)   NOT NULL,
+    birth_date  DATE          NOT NULL,
+    gender      gender_type   NOT NULL,
+    phone       VARCHAR(11)   NOT NULL,
+    weight_kg   NUMERIC(5, 2) NOT NULL,
+    height_cm   NUMERIC(5, 2) NOT NULL,
+    bmi         NUMERIC(5, 2) GENERATED ALWAYS AS (
+        weight_kg / ((height_cm / 100) ^ 2)
+        ) STORED,
+    trainer_id  INTEGER
+                              REFERENCES employee (id)
+                                  ON UPDATE CASCADE
+                                  ON DELETE SET NULL,
+    is_fee_paid BOOLEAN       NOT NULL DEFAULT FALSE,
+    is_active   BOOLEAN       NOT NULL DEFAULT TRUE,
+    created_at  TIMESTAMPTZ   NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ   NOT NULL DEFAULT now()
 );
 
-CREATE
-OR REPLACE FUNCTION set_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at
-:= now();
-RETURN NEW;
-END;
+-- 12. Trigger function to auto-update users.updated_at
+CREATE OR REPLACE FUNCTION trg_set_users_updated_at()
+    RETURNS TRIGGER AS
 $$
-LANGUAGE plpgsql;
+BEGIN
+    NEW.updated_at := now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_users_timestamp
+-- 13. Attach trigger to users table
+CREATE TRIGGER users_updated_at_trg
     BEFORE UPDATE
     ON users
     FOR EACH ROW
-    EXECUTE FUNCTION set_timestamp();
+EXECUTE PROCEDURE trg_set_users_updated_at();
 
-CREATE INDEX idx_users_trainer ON users(trainer_id);
-CREATE INDEX idx_users_unpaid  ON users(trainer_id) WHERE NOT is_fee_paid;
 
-ALTER DOMAIN phone_e164 DROP CONSTRAINT phone_e164_check;
+-- 14. Optional: User payment history
+CREATE TABLE user_payments
+(
+    payment_id SERIAL PRIMARY KEY,
+    user_id    INTEGER        NOT NULL
+        REFERENCES users (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+    amount     NUMERIC(10, 2) NOT NULL,
+    paid_at    TIMESTAMPTZ    NOT NULL DEFAULT now()
+);
 
-ALTER TABLE users alter column trainer_id drop not null
+-- 15. Optional: User attendance records
+CREATE TABLE user_attendance
+(
+    attendance_id   SERIAL PRIMARY KEY,
+    user_id         INTEGER     NOT NULL
+        REFERENCES users (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+    attendance_date DATE        NOT NULL,
+    check_in_time   TIMESTAMPTZ,
+    check_out_time  TIMESTAMPTZ,
+    status          VARCHAR(20) NOT NULL DEFAULT 'absent'
+        CHECK (status IN ('present', 'absent', 'leave'))
+);
 
-ALTER TABLE users alter column trainer_id drop not null
-ALTER TABLE users DROP COLUMN IF EXISTS trainer_id;
-ALTER TABLE users ADD COLUMN trainer_id INTEGER REFERENCES employee(id) ON DELETE SET NULL;
+-- ========================================================
+-- End of Gym Management Schema Script
+-- ========================================================
 
+-- ========================================================
+-- Sample: Gym Management – Complete SQL Script
+-- ========================================================
+
+INSERT INTO roles (role_name)
+VALUES ('admin'),
+       ('trainer'),
+       ('manager'),
+       ('receptionist');
+
+
+INSERT INTO employee (first_name, last_name, birth_date, role_id)
+VALUES ('Ali', 'Ahmadi', '1990-01-01',
+        (SELECT role_id FROM roles WHERE role_name = 'admin'));
+
+
+INSERT INTO employee_auth (id, username, password_hash)
+VALUES ((SELECT id FROM employee WHERE first_name = 'Ali' AND last_name = 'Ahmadi'),
+        'admin_ali',
+        '$2b$10$5PbFuwJz0RrbqI3dcA8nLuvCJP02VQheXzL3xWy7XD0Kp5uBtYdpq' -- hashed password123
+       );

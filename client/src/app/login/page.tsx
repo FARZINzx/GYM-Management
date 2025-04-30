@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 //form
 import { z } from "zod";
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 //utils
 import Spinner from "@/components/loading/LoadingSpinner";
-import { toggleFullScreen } from "@/lib/utils";
+// import { toggleFullScreen } from "@/lib/utils";
 import { setCookie } from "@/action/cookie";
 import toast from "react-hot-toast";
 //icon

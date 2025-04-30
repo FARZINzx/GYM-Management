@@ -3,6 +3,15 @@ import {IconButtonProps , Coach} from "@/data/type"
 //icon
 import { UserRoundPlus , TrendingUpDown , HandCoins , Anchor , ChartPie , Users } from "lucide-react";
 
+export const AdminPanelItem : IconButtonProps[] = [
+     {
+          id : 1,
+          label : "ثبت باشگاه جدید",
+          icon : UserRoundPlus,
+          href : '/register'
+     },
+]
+
 export const ManagerPanelItem : IconButtonProps[] = [
      {
           id : 1,
@@ -26,7 +35,7 @@ export const ManagerPanelItem : IconButtonProps[] = [
           id : 4,
           label : "مربیان",
           icon : Anchor,
-          href : '/coaches'
+          href : '/trainers'
      },
      {
           id : 5,
@@ -38,18 +47,18 @@ export const ManagerPanelItem : IconButtonProps[] = [
           id : 6,
           label : "کاربران",
           icon : Users,
-          href : '/register'
+          href : '/users'
      },
 
 
 ]
 
-export const ReceoptionPanelItem : IconButtonProps[] = [
+export const ReceptionPanelItem : IconButtonProps[] = [
      {
           id : 1,
           label : "ثبت کاربر جدید",
           icon : UserRoundPlus,
-          href : '/'
+          href : '/register'
      },
      {
           id : 7,
@@ -61,7 +70,7 @@ export const ReceoptionPanelItem : IconButtonProps[] = [
           id : 6,
           label : "کاربران",
           icon : Users,
-          href : '/'
+          href : '/users'
      },
 
 
