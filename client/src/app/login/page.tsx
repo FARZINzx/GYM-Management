@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 //utils
 import Spinner from "@/components/loading/LoadingSpinner";
+import ForgotPasswordDrawer from "@/components/login/forgetPassword"
 // import { toggleFullScreen } from "@/lib/utils";
 import { setCookie } from "@/action/cookie";
 import toast from "react-hot-toast";
@@ -132,85 +133,86 @@ export default function Login() {
         <p className="text-5xl text-[var(--secondary)]">ورود</p>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="sm-plus:px-0 space-y-6 bg-secondary p-8 rounded-xl"
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="sm-plus:px-0 space-y-6 bg-secondary p-8 rounded-xl"
           >
             <FormField
-              name="username"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem className="relative w-full">
-                  <div
-                    className={`absolute -top-[15px] right-2 bg-secondary px-1 text-lg text-[var(--primary)]`}
-                  >
-                    نام کاربری
-                  </div>
-                  <FormControl>
-                    <input
-                      {...field}
-                      type="text"
-                      dir="ltr"
-                      className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
-                      disabled={loading}
-                    />
-                  </FormControl>
-                  <FormMessage dir="rtl" className="text-red-600" />
-                </FormItem>
-              )}
+                name="username"
+                control={form.control}
+                render={({field}) => (
+                    <FormItem className="relative w-full">
+                      <div
+                          className={`absolute -top-[15px] right-2 bg-secondary px-1 text-lg text-[var(--primary)]`}
+                      >
+                        نام کاربری
+                      </div>
+                      <FormControl>
+                        <input
+                            {...field}
+                            type="text"
+                            dir="ltr"
+                            className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                            disabled={loading}
+                        />
+                      </FormControl>
+                      <FormMessage dir="rtl" className="text-red-600"/>
+                    </FormItem>
+                )}
             />
             <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="relative h-full w-full">
-                      <div
-                        className={`absolute -top-[17px] right-2 bg-[var(--secondary)] px-1 text-lg text-midnightNavy`}
-                      >
-                        رمز عبور
-                      </div>
-                      <input
-                        dir="ltr"
-                        type={showPassword ? "text" : "password"}
-                        {...field}
-                        className={`h-12 w-full rounded-lg border border-midnightNavy bg-transparent px-3 text-midnightNavy outline-0`}
-                        disabled={loading}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className={`absolute inset-y-0 right-3 ${
-                          pass != "" ? "flex" : "hidden"
-                        } items-center text-[var(--primary)]`}
-                        disabled={loading}
-                      >
-                        {showPassword ? (
-                          <Eye className="h-5 w-5" />
-                        ) : (
-                          <EyeOff className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage dir="rtl" className="text-red-600" />
-                </FormItem>
-              )}
+                name="password"
+                control={form.control}
+                render={({field}) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="relative h-full w-full">
+                          <div
+                              className={`absolute -top-[17px] right-2 bg-[var(--secondary)] px-1 text-lg text-midnightNavy`}
+                          >
+                            رمز عبور
+                          </div>
+                          <input
+                              dir="ltr"
+                              type={showPassword ? "text" : "password"}
+                              {...field}
+                              className={`h-12 w-full rounded-lg border border-midnightNavy bg-transparent px-3 text-midnightNavy outline-0`}
+                              disabled={loading}
+                          />
+                          <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className={`absolute inset-y-0 right-3 ${
+                                  pass != "" ? "flex" : "hidden"
+                              } items-center text-[var(--primary)]`}
+                              disabled={loading}
+                          >
+                            {showPassword ? (
+                                <Eye className="h-5 w-5"/>
+                            ) : (
+                                <EyeOff className="h-5 w-5"/>
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage dir="rtl" className="text-red-600"/>
+                    </FormItem>
+                )}
             />
             {error && (
-              <div className="text-red-600 text-center text-sm" dir="rtl">
-                {error}
-              </div>
+                <div className="text-red-600 text-center text-sm" dir="rtl">
+                  {error}
+                </div>
             )}
             <Button
-              className="h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold hover:brightness-90 active:scale-95 duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              type="submit"
-              disabled={loading}
+                className="h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold hover:brightness-90 active:scale-95 duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="submit"
+                disabled={loading}
             >
-              {loading ? <Spinner /> : "ورود"}
+              {loading ? <Spinner/> : "ورود"}
             </Button>
           </form>
         </Form>
+        <ForgotPasswordDrawer/>
       </div>
     </div>
   );

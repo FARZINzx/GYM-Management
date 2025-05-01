@@ -25,3 +25,12 @@ export async function register(first_name, last_name, age, phone, gender, weight
 
 
 }
+
+export async function getAll() {
+    try {
+        const { rows } = await query('SELECT * FROM users');
+        return { success: true, message: 'OK', data: rows, status: 200 };
+    } catch (e) {
+        return { success: false, message: e.message, status: 500 };
+    }
+}

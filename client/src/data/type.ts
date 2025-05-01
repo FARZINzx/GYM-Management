@@ -14,4 +14,18 @@ export interface Coach {
      present : boolean
 }
 
+export interface User {
+     id: string
+     first_name : string
+     last_name : string
+     age : number
+     phone : string
+     gender : string
+     weight_kg : string
+     height_cm : string
+     bmi : string
+     is_fee_paid: string,
+     trainer_id : any
+}
+
 

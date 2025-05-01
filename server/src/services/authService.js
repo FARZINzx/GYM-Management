@@ -24,7 +24,7 @@ export default {
 
         const user = rows[0];
 
-        console.log(await this.hashPassword('farzin123'));
+        console.log(await this.hashPassword('aryas123'));
 
         if (!user.is_active) throw new Error("این حساب کاربری فعال نیست.");
 
@@ -47,4 +47,37 @@ export default {
     async hashPassword(password) {
         return bcrypt.hash(password, 10);
     },
+
+    async getSecurityQuestion(username) {
+        const { rows } = await query(
+            `
+                SELECT sq.question_text
+                FROM employee_auth ea
+                         JOIN security_questions sq ON ea.question_id = sq.question_id
+                WHERE ea.username = $1;
+      `,
+            [username]
+        );
+
+        if (rows.length === 0) throw new Error("کاربر یافت نشد یا سوال ثبت نشده است.");
+        return rows[0].question_text;
+    },
+
+    async verifySecurityAnswer(username, answer) {
+        const { rows } = await query(
+            `SELECT password_hash, question_answer_hash FROM employee_auth WHERE username = $1`,
+            [username]
+        );
+
+        if (rows.length === 0) throw new Error("کاربر یافت نشد.");
+
+        const { password_hash, question_answer_hash } = rows[0];
+
+        const valid = await bcrypt.compare(answer.trim(), question_answer_hash);
+        if (!valid) throw new Error("پاسخ امنیتی نادرست است.");
+
+        return password_hash; // Or reset token instead
+    },
+
+
 };
