@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import {body} from 'express-validator'
-import {login} from '../controllers/authController.js';
+import {login , getSecurityQuestion , verifySecurityAnswer} from '../controllers/authController.js';
 const router = Router()
 
 router.post(
@@ -18,6 +18,19 @@ router.post(
      ],
      login
    );
+
+// 🔐 1. Get security question by username
+router.get("/forgot-password/:username", getSecurityQuestion);
+
+// 🔐 2. Verify answer and return password (or token)
+router.post(
+    "/verify-security-answer",
+    [
+        body("username").notEmpty().withMessage("Username is required"),
+        body("answer").notEmpty().withMessage("Answer is required"),
+    ],
+    verifySecurityAnswer
+);
 
 
 export default router

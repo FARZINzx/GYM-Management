@@ -2,6 +2,8 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/document/db.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/server/src/services/authService.js" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/server/src/services/userServices.js" dialect="GenericSQL" />
+    <file url="PROJECT" dialect="PostgreSQL" />
   </component>
 </project>

@@ -6,6 +6,15 @@
 -- 1. Create reusable gender enum type
 CREATE TYPE gender_type AS ENUM ('male', 'female');
 
+-- =========================
+-- 2. Security Questions
+-- =========================
+CREATE TABLE security_questions
+(
+    question_id   SERIAL PRIMARY KEY,
+    question_text TEXT NOT NULL
+);
+
 -- 2. Roles lookup
 CREATE TABLE roles
 (
@@ -49,12 +58,11 @@ EXECUTE PROCEDURE trg_set_employee_updated_at();
 -- 6. Employee authentication details
 CREATE TABLE employee_auth
 (
-    id            INTEGER PRIMARY KEY
-        REFERENCES employee (id)
-            ON UPDATE CASCADE
-            ON DELETE CASCADE,
-    username      VARCHAR(30)  NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL
+    id                   INTEGER PRIMARY KEY REFERENCES employee (id) ON DELETE CASCADE,
+    username             CITEXT UNIQUE NOT NULL,
+    password_hash        VARCHAR(255)  NOT NULL,
+    question_id          INTEGER       REFERENCES security_questions (question_id) ON DELETE SET NULL,
+    question_answer_hash VARCHAR(255)
 );
 
 -- 7. Employee login history
@@ -203,3 +211,18 @@ VALUES ((SELECT id FROM employee WHERE first_name = 'Ali' AND last_name = 'Ahmad
         'admin_ali',
         '$2b$10$5PbFuwJz0RrbqI3dcA8nLuvCJP02VQheXzL3xWy7XD0Kp5uBtYdpq' -- hashed password123
        );
+
+INSERT INTO security_questions (question_text)
+VALUES ('نام اولین معلم شما چیست؟'),
+       ('نام حیوان خانگی دوران کودکی شما چه بود؟'),
+       ('نام مدرسه ابتدایی شما چیست؟'),
+       ('نام بهترین دوست دوران کودکی شما چیست؟'),
+       ('اولین فیلم مورد علاقه شما چه بود؟');
+
+INSERT INTO employee_auth (id, username, password_hash, question_id, question_answer_hash)
+VALUES ((SELECT id FROM employee WHERE first_name = 'parham' AND last_name = 'safiyaryi'),
+        'parham',
+        '$2b$10$PH4GQSF3FuigMm4zpeGY..U5TuaP7Oa9qGdgO3G2cX4vVexxCDsLm',
+        (SELECT question_id FROM security_questions WHERE question_text = 'اولین فیلم مورد علاقه شما چه بود؟'),
+        '$2b$10$HVRwrGS/nJ.4zqW1.1PlheMqAPM1/NquEzGorNrBjtBoRkmMVHh3y');
+
