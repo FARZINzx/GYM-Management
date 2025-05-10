@@ -24,8 +24,6 @@ export default {
 
         const user = rows[0];
 
-        console.log(await this.hashPassword('aryas123'));
-
         if (!user.is_active) throw new Error("این حساب کاربری فعال نیست.");
 
         const validPassword = await bcrypt.compare(password.trim(), user.password_hash);
