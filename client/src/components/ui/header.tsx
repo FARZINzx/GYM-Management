@@ -2,33 +2,18 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 //utils
-import { deleteCookie } from "@/action/cookie";
-import toast from "react-hot-toast";
+import Logout from "@/components/login/logout"
 //icon
-import { LogOut, ChevronLeft, RefreshCw } from "lucide-react";
+import {ChevronLeft, RefreshCw } from "lucide-react";
 
 
 const MenuHeader = () => {
-  const router = useRouter();
-  const handleLogout = useCallback(() => {
-    deleteCookie("token");
-    toast.success('خروج با موفقیت انجام شد', {
-      style: {
-        background: "#31C440",
-        color: "#fff",
-      },
-      duration : 2000
-    });
-    router.refresh()
-  }, [router]);
+
 
   return (
     <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
       <div className="flex items-center w-full justify-center h-full relative">
-        <LogOut
-          className="max-[400px]:size-8 size-9 absolute right-3 duration-300 active:scale-90"
-          onClick={handleLogout}
-        />
+        <Logout/>
         <h1 className="text-2xl max-[400px]:text-xl font-semibold">باشگاه بدنسازی</h1>
       </div>
     </div>
