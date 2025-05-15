@@ -132,7 +132,6 @@ const formSchema = z.object({
           className="object-cover"
           priority
         />
-        {/* Optional overlay for better text readability */}
         <div className="absolute inset-0 bg-black/30" />
       </div>
       <div className="z-10 flex flex-col items-center justify-center gap-10">
