@@ -1,11 +1,11 @@
 import {query} from "../config/db.js";
 
-export async function register(first_name, last_name, age, phone, gender, weight_kg, height_cm, trainer_id) {
+export async function register(first_name, last_name, birth_date, phone, gender, weight_kg, height_cm, trainer_id) {
     try {
         await query(
-            `INSERT INTO users (first_name, last_name, age, phone, gender, weight_kg, height_cm, trainer_id)
+            `INSERT INTO users (first_name, last_name, birth_date, phone, gender, weight_kg, height_cm, trainer_id)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [
-                first_name, last_name, age, phone, gender, weight_kg, height_cm, trainer_id || null,
+                first_name, last_name, birth_date, phone, gender, weight_kg, height_cm, trainer_id || null,
             ]
         )
 

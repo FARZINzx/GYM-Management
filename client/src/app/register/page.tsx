@@ -29,7 +29,7 @@ import opacity from "react-element-popper/animations/opacity"
 import "react-multi-date-picker/styles/layouts/mobile.css"
 import "react-multi-date-picker/styles/colors/yellow.css"
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css"
-
+import DateObject from "react-date-object";
 
 
 
@@ -112,7 +112,7 @@ export default function Register() {
                 toast.promise(new Promise((resolve) => {
                     setTimeout(() => {
                         resolve(true)
-                        router.push("");
+                        router.push("/");
                     }, 1500)
                 }), {
                     loading: 'در حال بازگشت به صفحه اصلی...',
@@ -258,10 +258,15 @@ export default function Register() {
                                             className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                             style={{direction: "rtl"}}>
                                             <DatePicker
-                                                value={field.value || ""}
+                                                value={field.value ? new DateObject({date: field.value, calendar: persian, locale: persian_fa}) : ""}
                                                 onChange={(date) => {
-                                                    console.log(date)
-                                                    field.onChange(date?.isValid ? date : "");
+                                                    if(date?.isValid){
+                                                        const formatted = date.format("YYYY/MM/DD")
+                                                        console.log(formatted)
+                                                        field.onChange(formatted);
+                                                    }else{
+                                                        field.onChange("")
+                                                    }
                                                 }}
                                                 format="YYYY/MM/DD"
                                                 calendar={persian}

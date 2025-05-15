@@ -1,15 +1,17 @@
-import {validationResult} from "express-validator";
-import {register} from '../services/userServices.js'
+import { validationResult } from "express-validator";
+import { register } from '../services/userServices.js'
+import { toGregorianISO } from "../utils/jalaliToGregorian.js";
+
 
 export const registerController = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
+        return res.status(400).json({ errors: errors.array() });
     }
     const {
         first_name,
         last_name,
-        age,
+        birth_date,
         phone,
         gender,
         weight_kg,
@@ -17,6 +19,14 @@ export const registerController = async (req, res) => {
         trainer_id,
     } = req.body;
 
+    let birth_date_gregorian;
+    try {
+        birth_date_gregorian = toGregorianISO(birth_date);
+    } catch (e) {
+        return res
+            .status(400)
+            .json({ success: false, message: "فرمت تاریخ تولد نامعتبر است" });
+    }
     const {
         success,
         message,
@@ -24,7 +34,7 @@ export const registerController = async (req, res) => {
     } = await register(
         first_name,
         last_name,
-        age,
+        birth_date_gregorian,
         phone,
         gender,
         weight_kg,
