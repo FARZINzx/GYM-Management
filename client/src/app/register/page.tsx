@@ -53,13 +53,13 @@ export default function Register() {
             .min(10, {message: "سن باید بزرگتر از ۱۰ باشد"})
             .max(120, {message: "سن نمی‌تواند بیشتر از ۱۲۰ باشد"}),
         weight: z
-            .string({
-                required_error: "وزن وارد نشده است"
-            }),
+            .number({required_error: "وزن وارد نشده است"})
+            .min(1,{message:"وزن باید بزرگ تر 0 باشد"})
+            .max(250,{message : "وزن نمی تواند بیشتر از 3 رقم باشد"}),
         height: z
-            .string({
-                required_error: "قد وارد نشده است"
-            }),
+            .number({required_error: "قد وارد نشده است"})
+            .min(1,{message:"قد باید بزرگ تر 0 باشد"})
+            .max(250,{message : "قد نمی تواند بیشتر از 3 رقم باشد"}),
         gender: z.enum(["male", "female"], {
             required_error: "جنسیت انتخاب نشده است",
         }),
@@ -72,8 +72,8 @@ export default function Register() {
             familyName: '',
             phone: '',
             birth: '',
-            weight: '',
-            height: '',
+            weight: undefined,
+            height: undefined,
             gender: 'male' // or 'female' as default
         }
     });
@@ -190,6 +190,7 @@ export default function Register() {
                                             {...field}
                                             type="text"
                                             dir="ltr"
+                                            maxLength={20}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -212,6 +213,7 @@ export default function Register() {
                                             {...field}
                                             type="text"
                                             dir="ltr"
+                                            maxLength={30}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -235,6 +237,7 @@ export default function Register() {
                                             type="tel"
                                             dir="ltr"
                                             pattern="[0-9]*"
+                                            maxLength={11}
                                             inputMode="numeric"
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
@@ -303,7 +306,9 @@ export default function Register() {
                                             {...field}
                                             type="number"
                                             dir="ltr"
-                                            onChange={(e) => field.onChange(e.target.value)}
+                                            min={0}
+                                            max={250}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -326,8 +331,9 @@ export default function Register() {
                                             {...field}
                                             type="number"
                                             dir="ltr"
-                                            min="50"
-                                            onChange={(e) => field.onChange(e.target.value)}
+                                            min={0}
+                                            max={250}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
