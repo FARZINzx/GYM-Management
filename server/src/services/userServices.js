@@ -34,3 +34,12 @@ export async function getAll() {
         return { success: false, message: e.message, status: 500 };
     }
 }
+
+export async function getUser(id){
+    try {
+        const { rows } = await query('SELECT * FROM users WHERE id = $1',[id]);
+        return { success: true, message: 'OK', data: rows, status: 200 };
+    } catch (e) {
+        return { success: false, message: e.message, status: 500 };
+    }
+}

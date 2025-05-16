@@ -29,7 +29,7 @@ export default function Coaches() {
               {["وضعیت حضور", "نام و نام خانوادگی"].map((item, index) => (
                 <p
                   key={index}
-                  className="pb-1 text-lg underline underline-offset-10 text-center"
+                  className="pb-1 text-sm min-w-[380]:text-base  underline underline-offset-10 text-center"
                 >
                   {item}
                 </p>
@@ -40,17 +40,17 @@ export default function Coaches() {
                 <Link
                   href={`/trainers/${item.id}`}
                   key={item.id}
-                  className="w-full grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl flex-row-reverse py-2 active:scale-90 duration-500"
+                  className="w-full grid grid-cols-2 text-sm gap-1 bg-[var(--secondary)] rounded-xl flex-row-reverse py-2 active:scale-90 duration-500"
                 >
                   <p className="text-center order-1">{item.name}</p>{" "}
                   {item.present ? (
                     <div className="flex items-center gap-1 justify-center flex-row-reverse text-green-600 text-center">
-                      <UserRoundCheck className="w-6 h-6" />
+                      <UserRoundCheck className="w-5 h-5" />
                       <p>حاضر</p>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1 text-red-600 text-center justify-center flex-row-reverse">
-                      <UserRoundX className="w-6 h-6" />
+                      <UserRoundX className="w-5 h-5" />
                       <p>غایب</p>
                     </div>
                   )}

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {body} from "express-validator";
 import {registerController} from "../controllers/registerController.js";
-import {getAllUsers} from "../controllers/userController.js";
+import {getAllUsers , getUser} from "../controllers/userController.js";
 
 const router = Router();
 
@@ -17,9 +17,10 @@ router.post(
         body('height_cm').isFloat({ gt: 0 }).withMessage('Height must be greater than 0'),
         body('trainer_id').optional().isInt().withMessage('Trainer ID must be an integer'),
     ],
-    registerController
-)
+    registerController)
 
 router.get("/" , getAllUsers)
+
+router.get("/:id" , getUser)
 
 export default router;
