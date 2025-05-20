@@ -86,10 +86,10 @@ export default function UserProfile() {
                             <p>جنسیت :</p>
                             <p>{user?.gender == "male" ? "مرد" : "زن"}</p>
                         </div>
-                         <div className="w-full flex-row-reverse text-sm items-center justify-between">
+                         {/* <div className="w-full flex-row-reverse text-sm items-center justify-between">
                             <p>نام :</p>
                             <p>{user?.first_name} {user?.last_name}</p>
-                        </div>
+                        </div> */}
                          <div className="w-full flex-row-reverse text-sm items-center justify-between">
                             <p>وضعیت شهریه :</p>
                             <p>{user?.is_fee_paid ? "پرداخت شده" :"پرداخت نشده"}</p>
