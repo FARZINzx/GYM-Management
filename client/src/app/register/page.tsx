@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
-import {useState} from "react";
+import { useState } from "react";
 //form
-import {z} from "zod";
-import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 //shadCn
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
@@ -14,11 +14,11 @@ import {
     FormItem,
     FormMessage,
 } from "@/components/ui/form";
-import {Label} from "@/components/ui/label";
-import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 //utils
 import Spinner from "@/components/loading/LoadingSpinner";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 // import {toggleFullScreen} from "@/lib/utils";
 import toast from "react-hot-toast";
 import DatePicker from "react-multi-date-picker"
@@ -29,7 +29,7 @@ import opacity from "react-element-popper/animations/opacity"
 import "react-multi-date-picker/styles/layouts/mobile.css"
 import "react-multi-date-picker/styles/colors/yellow.css"
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css"
-
+import DateObject from "react-date-object";
 
 
 
@@ -40,26 +40,54 @@ export default function Register() {
     const router = useRouter();
 
     const formSchema = z.object({
-        name: z.string({required_error: "نام وارد نشده است"}),
-        familyName: z.string({required_error: "نام خانوادگی وارد نشده است"}),
+        name: z.string({ required_error: "نام وارد نشده است" }),
+        familyName: z.string({ required_error: "نام خانوادگی وارد نشده است" }),
         phone: z
-            .string({required_error: "شماره تلفن وارد نشده است"})
-            .min(11, {message: "شماره تلفن باید ۱۱ رقم باشد"})
-            .regex(/^[0-9]+$/, {message: "شماره تلفن فقط باید شامل اعداد باشد"}),
+            .string({ required_error: "شماره تلفن وارد نشده است" })
+            .min(11, { message: "شماره تلفن باید ۱۱ رقم باشد" })
+            .regex(/^[0-9]+$/, { message: "شماره تلفن فقط باید شامل اعداد باشد" }),
         birth: z
             .string({
                 required_error: "تاریخ تولد وارد نشده است",
             })
-            .min(10, {message: "سن باید بزرگتر از ۱۰ باشد"})
-            .max(120, {message: "سن نمی‌تواند بیشتر از ۱۲۰ باشد"}),
-        weight: z
-            .string({
-                required_error: "وزن وارد نشده است"
-            }),
-        height: z
-            .string({
-                required_error: "قد وارد نشده است"
-            }),
+            .min(10, { message: "سن باید بزرگتر از ۱۰ باشد" })
+            .max(120, { message: "سن نمی‌تواند بیشتر از ۱۲۰ باشد" }),
+        weight: z.preprocess(
+            (val) => {
+                if (typeof val === "string") {
+                    // رشته خالی را به undefined تبدیل کن
+                    if (val === "") return undefined;
+                    const num = Number(val);
+                    return Number.isNaN(num) ? val : num;
+                }
+                return val;
+            },
+            z
+                .number({
+                    required_error: "وزن وارد نشده است",
+                    invalid_type_error: "وزن باید عدد باشد",
+                })
+                .min(1, { message: "وزن باید بزرگ‌تر از ۰ باشد" })
+                .max(250, { message: "وزن نمی‌تواند بیشتر از ۳ رقم باشد" })
+        ),
+
+        height: z.preprocess(
+            (val) => {
+                if (typeof val === "string") {
+                    if (val === "") return undefined;
+                    const num = Number(val);
+                    return Number.isNaN(num) ? val : num;
+                }
+                return val;
+            },
+            z
+                .number({
+                    required_error: "قد وارد نشده است",
+                    invalid_type_error: "قد باید عدد باشد",
+                })
+                .min(50, { message: "قد باید حداقل ۵۰ سانتیمتر باشد" })
+                .max(250, { message: "قد نمی‌تواند بیشتر از ۳ رقم باشد" })
+        ),
         gender: z.enum(["male", "female"], {
             required_error: "جنسیت انتخاب نشده است",
         }),
@@ -72,11 +100,13 @@ export default function Register() {
             familyName: '',
             phone: '',
             birth: '',
-            weight: '',
-            height: '',
-            gender: 'male' // or 'female' as default
-        }
-    });
+            weight: undefined,
+            height: undefined,
+            gender: 'male'
+        },
+        mode: "onChange"
+    }
+    );
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setLoading(true);
@@ -112,7 +142,7 @@ export default function Register() {
                 toast.promise(new Promise((resolve) => {
                     setTimeout(() => {
                         resolve(true)
-                        router.push("");
+                        router.push("/");
                     }, 1500)
                 }), {
                     loading: 'در حال بازگشت به صفحه اصلی...',
@@ -178,7 +208,7 @@ export default function Register() {
                         <FormField
                             name="name"
                             control={form.control}
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="relative w-full">
                                     <div
                                         className={`absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]`}
@@ -190,17 +220,18 @@ export default function Register() {
                                             {...field}
                                             type="text"
                                             dir="ltr"
+                                            maxLength={20}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600"/>
+                                    <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             name="familyName"
                             control={form.control}
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="relative w-full">
                                     <div
                                         className={`absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]`}
@@ -212,17 +243,18 @@ export default function Register() {
                                             {...field}
                                             type="text"
                                             dir="ltr"
+                                            maxLength={30}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600"/>
+                                    <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             name="phone"
                             control={form.control}
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="relative w-full">
                                     <div
                                         className={`absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]`}
@@ -235,18 +267,19 @@ export default function Register() {
                                             type="tel"
                                             dir="ltr"
                                             pattern="[0-9]*"
+                                            maxLength={11}
                                             inputMode="numeric"
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600"/>
+                                    <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             name="birth"
                             control={form.control}
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="relative w-full">
                                     <div
                                         className={`absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]`}
@@ -256,18 +289,23 @@ export default function Register() {
                                     <FormControl>
                                         <div
                                             className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
-                                            style={{direction: "rtl"}}>
+                                            style={{ direction: "rtl" }}>
                                             <DatePicker
-                                                value={field.value || ""}
+                                                value={field.value ? new DateObject({ date: field.value, calendar: persian, locale: persian_fa }) : ""}
                                                 onChange={(date) => {
-                                                    console.log(date)
-                                                    field.onChange(date?.isValid ? date : "");
+                                                    if (date?.isValid) {
+                                                        const formatted = date.format("YYYY/MM/DD")
+                                                        console.log(formatted)
+                                                        field.onChange(formatted);
+                                                    } else {
+                                                        field.onChange("")
+                                                    }
                                                 }}
                                                 format="YYYY/MM/DD"
                                                 calendar={persian}
                                                 locale={persian_fa}
                                                 calendarPosition="bottom-right"
-                                                style={{border: 0, outline: 0}}
+                                                style={{ border: 0, outline: 0 }}
                                                 className="rmdp-mobile yellow bg-dark"
                                                 animations={[
                                                     opacity(),
@@ -279,14 +317,14 @@ export default function Register() {
                                             />
                                         </div>
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600"/>
+                                    <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             name="weight"
                             control={form.control}
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="relative w-full">
                                     <div
                                         className={`absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]`}
@@ -298,18 +336,21 @@ export default function Register() {
                                             {...field}
                                             type="number"
                                             dir="ltr"
+                                            min={0}
+                                            max={250}
+                                            value={field.value ?? ""}
                                             onChange={(e) => field.onChange(e.target.value)}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600"/>
+                                    <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             name="height"
                             control={form.control}
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="relative w-full">
                                     <div
                                         className={`absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]`}
@@ -321,19 +362,20 @@ export default function Register() {
                                             {...field}
                                             type="number"
                                             dir="ltr"
-                                            min="50"
-                                            onChange={(e) => field.onChange(e.target.value)}
-                                            className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            min={0}
+                                            max={250}
+                                            value={field.value ?? ""}
+                                            onChange={(e) => field.onChange(e.target.value)} className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600"/>
+                                    <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             name="gender"
                             control={form.control}
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="flex flex-col items-end w-full">
                                     <div className="flex items-center justify-between w-full flex-row-reverse">
                                         <div className={`text-[var(--primary)]`}>: جنسیت</div>
@@ -345,17 +387,17 @@ export default function Register() {
                                                 className="flex items-center flex-row-reverse"
                                             >
                                                 <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="male" id="r1"/>
+                                                    <RadioGroupItem value="male" id="r1" />
                                                     <Label htmlFor="r1">مذکر</Label>
                                                 </div>
                                                 <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="female" id="r2"/>
+                                                    <RadioGroupItem value="female" id="r2" />
                                                     <Label htmlFor="r2">مونث</Label>
                                                 </div>
                                             </RadioGroup>
                                         </FormControl>
                                     </div>
-                                    <FormMessage dir="rtl" className="text-red-600"/>
+                                    <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
                         />
@@ -363,7 +405,7 @@ export default function Register() {
                             className="h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold hover:brightness-90 active:scale-95 duration-500"
                             type="submit"
                         >
-                            {loading ? <Spinner/> : "ثبت اطلاعات"}
+                            {loading ? <Spinner /> : "ثبت اطلاعات"}
                         </Button>
                     </form>
                 </Form>
