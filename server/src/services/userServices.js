@@ -1,11 +1,11 @@
 import {query} from "../config/db.js";
 
-export async function register(first_name, last_name, age, phone, gender, weight_kg, height_cm, trainer_id) {
+export async function register(first_name, last_name, birth_date, phone, gender, weight_kg, height_cm, trainer_id) {
     try {
         await query(
-            `INSERT INTO users (first_name, last_name, age, phone, gender, weight_kg, height_cm, trainer_id)
+            `INSERT INTO users (first_name, last_name, birth_date, phone, gender, weight_kg, height_cm, trainer_id)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [
-                first_name, last_name, age, phone, gender, weight_kg, height_cm, trainer_id || null,
+                first_name, last_name, birth_date, phone, gender, weight_kg, height_cm, trainer_id || null,
             ]
         )
 
@@ -30,6 +30,20 @@ export async function getAll() {
     try {
         const { rows } = await query('SELECT * FROM users');
         return { success: true, message: 'OK', data: rows, status: 200 };
+    } catch (e) {
+        return { success: false, message: e.message, status: 500 };
+    }
+}
+
+export async function getUser(id) {
+    try {
+        const { rows } = await query('SELECT * FROM users WHERE id = $1', [id]);
+
+        if (rows.length === 0) {
+            return { success: false, message: 'User not found', status: 404 };
+        }
+
+        return { success: true, message: 'User found', data: rows[0], status: 200 }; 
     } catch (e) {
         return { success: false, message: e.message, status: 500 };
     }

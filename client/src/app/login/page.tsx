@@ -41,15 +41,20 @@ export default function Login() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const formSchema = z.object({
-    username: z.string().nonempty({ message: "نام کاربری وارد نشده است" }),
-    password: z
-      .string()
-      .min(7, { message: "رمز عبور باید بیشتر از 8 رقم باشد" })
-      .refine((val) => /[A-Za-z]/.test(val) && /\d/.test(val), {
-        message: "رمز عبور باید شامل حروف و عدد انگلیسی باشد",
-      }),
-  });
+const formSchema = z.object({
+  username: z
+    .string()
+    .min(1, { message: "نام کاربری وارد نشده است" })
+    .max(25, { message: "نام کاربری نمی‌تواند بیش از ۲۵ حرف باشد" }),
+  password: z
+    .string()
+    .min(8, { message: "رمز عبور باید حداقل ۸ کاراکتر باشد" })
+    .max(20, { message: "رمز عبور نمی‌تواند بیش از ۲۰ حرف باشد" })
+    .refine((val) => /[A-Za-z]/.test(val) && /\d/.test(val), {
+      message: "رمز عبور باید شامل حروف و عدد انگلیسی باشد",
+    }),
+});
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,6 +62,7 @@ export default function Login() {
       username: "",
       password: "",
     },
+    mode : "onChange"
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -126,7 +132,6 @@ export default function Login() {
           className="object-cover"
           priority
         />
-        {/* Optional overlay for better text readability */}
         <div className="absolute inset-0 bg-black/30" />
       </div>
       <div className="z-10 flex flex-col items-center justify-center gap-10">
@@ -134,7 +139,7 @@ export default function Login() {
         <Form {...form}>
           <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="sm-plus:px-0 space-y-6 bg-secondary p-8 rounded-xl"
+              className="sm-plus:px-0 space-y-6 max-w-[285px] bg-secondary p-8 rounded-xl"
           >
             <FormField
                 name="username"
@@ -151,11 +156,12 @@ export default function Login() {
                             {...field}
                             type="text"
                             dir="ltr"
+                            maxLength={25}
                             className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                             disabled={loading}
                         />
                       </FormControl>
-                      <FormMessage dir="rtl" className="text-red-600"/>
+                      <FormMessage dir="rtl" className="text-red-600 text-xs"/>
                     </FormItem>
                 )}
             />
@@ -175,6 +181,7 @@ export default function Login() {
                               dir="ltr"
                               type={showPassword ? "text" : "password"}
                               {...field}
+                              maxLength={20}
                               className={`h-12 w-full rounded-lg border border-midnightNavy bg-transparent px-3 text-midnightNavy outline-0`}
                               disabled={loading}
                           />
@@ -194,7 +201,7 @@ export default function Login() {
                           </button>
                         </div>
                       </FormControl>
-                      <FormMessage dir="rtl" className="text-red-600"/>
+                      <FormMessage dir="rtl" className="text-red-600 text-xs"/>
                     </FormItem>
                 )}
             />
@@ -204,9 +211,9 @@ export default function Login() {
                 </div>
             )}
             <Button
-                className="h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold hover:brightness-90 active:scale-95 duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-10 w-full rounded-lg text-[var(--secondary)] disabled:bg-gray-600 bg-primary text-center text-[16px] font-semibold hover:brightness-90 active:scale-95 duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
-                disabled={loading}
+                disabled={!form.formState.isValid || loading}
             >
               {loading ? <Spinner/> : "ورود"}
             </Button>

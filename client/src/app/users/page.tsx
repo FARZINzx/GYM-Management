@@ -87,7 +87,7 @@ export default function Users() {
                                         <Link
                                             href={`/users/${user.id}`}
                                             key={user.id}
-                                            className="w-full grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl flex-row-reverse py-2 active:scale-90 duration-500 text-sm min-w-[380]:text-base"
+                                            className="w-full place-items-center place-content-center grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl flex-row-reverse py-2 active:scale-90 duration-500 text-sm min-w-[380]:text-base"
                                         >
                                             <p className="text-center order-1">{user.first_name} {user.last_name}</p>{" "}
                                             {user.is_fee_paid ? (

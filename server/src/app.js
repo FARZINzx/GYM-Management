@@ -3,6 +3,8 @@ import cors from "cors";
 import env from "./config/env.js";
 import authRoutes from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
+// import trainerRoutes from "./routes/trainerRoutes.js"
+import { errorHandler , notFound } from "./middlewares/errorHandler.js";
 
 const app = express();
 
@@ -20,5 +22,9 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/user" , userRoute)
+// app.use("/trainer" , trainerRoutes)
+
+app.use(notFound);  
+app.use(errorHandler);  
 
 export default app;
