@@ -35,10 +35,15 @@ export async function getAll() {
     }
 }
 
-export async function getUser(id){
+export async function getUser(id) {
     try {
-        const { rows } = await query('SELECT * FROM users WHERE id = $1',[id]);
-        return { success: true, message: 'OK', data: rows, status: 200 };
+        const { rows } = await query('SELECT * FROM users WHERE id = $1', [id]);
+
+        if (rows.length === 0) {
+            return { success: false, message: 'User not found', status: 404 };
+        }
+
+        return { success: true, message: 'User found', data: rows[0], status: 200 }; 
     } catch (e) {
         return { success: false, message: e.message, status: 500 };
     }

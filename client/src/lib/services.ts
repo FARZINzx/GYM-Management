@@ -33,7 +33,7 @@ export const getUser = async (id : any) => {
             throw new Error(error.message || `HTTP error: ${response.status}`);
         }
         const data = await response.json();
-        return { success: true, data };
+        return data
     } catch (error : any) {
         return { success: false, message: error.message || 'خطا در دریافت اطلاعات' };
     }

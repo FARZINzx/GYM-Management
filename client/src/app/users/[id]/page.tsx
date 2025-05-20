@@ -13,13 +13,16 @@ import {getUser} from '@/lib/services'
 //icon
 import { UserRoundCheck, UserRoundX } from "lucide-react";
 import { number } from "zod";
+import { log } from "console";
 
 
 export default function UserProfile() {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const {id} = useParams()
-    const [user, setUser] = useState<User[]>([]);
+    const [user, setUser] = useState<User | null>(null);
+
+    console.log(user?.first_name)
 
 
     useEffect(() => {
@@ -27,9 +30,11 @@ export default function UserProfile() {
             setIsLoading(true);
             try {
                 const result = await getUser(id);
+                console.log(result);
+                
 
                 if (result.success) {
-                    setUser(result.data.data);
+                    setUser(result.data);
                 } else {
                     toast.error(result.message || 'خطایی رخ داده است' , {
                         style: {
@@ -65,38 +70,38 @@ export default function UserProfile() {
                     <h2 className="text-3xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
                         پروفایل کاربر
                     </h2>  
-                    <div className="w-full bg-[var(--secondary)] p-1 flex flex-col">
-                        <div className="w-full flex-row-reverse text-sm items-center justify-between">
-                            <p>نام :</p>
-                            <p>{user?.first_name} {user?.last_name}</p>
+                    <div className="w-full bg-[var(--secondary)] p-3 flex flex-col rounded-md">
+                        <div className="w-full flex flex-row-reverse text-sm items-center justify-between">
+                            <p> : نام</p>
+                            {isLoading ? <div className="w-10 h-2 bg-gray-400 animate-pulse"></div> : <p>{user?.first_name} {user?.last_name}</p>  }
                         </div>
-                         <div className="w-full flex-row-reverse text-sm items-center justify-between">
-                            <p>شماره تلفن :</p>
-                            <p>{user?.phone}</p>
-                        </div>
-                         <div className="w-full flex-row-reverse text-sm items-center justify-between">
-                            <p>نام :</p>
-                            <p>{user?.first_name} {user?.last_name}</p>
-                        </div>
-                         <div className="w-full flex-row-reverse text-sm items-center justify-between">
-                            <p>شاخص توده بدنی :</p>
-                            <p>{user?.bmi}</p>
-                        </div>
-                         <div className="w-full flex-row-reverse text-sm items-center justify-between">
-                            <p>جنسیت :</p>
-                            <p>{user?.gender == "male" ? "مرد" : "زن"}</p>
+                         <div className="w-full flex flex-row-reverse text-sm items-center justify-between">
+                            <p>شماره تلفن</p>
+                            {isLoading ? <div className="w-10 h-2 bg-gray-400 animate-pulse"></div> :<p>{user?.phone}</p>}
                         </div>
                          {/* <div className="w-full flex-row-reverse text-sm items-center justify-between">
                             <p>نام :</p>
                             <p>{user?.first_name} {user?.last_name}</p>
                         </div> */}
-                         <div className="w-full flex-row-reverse text-sm items-center justify-between">
-                            <p>وضعیت شهریه :</p>
-                            <p>{user?.is_fee_paid ? "پرداخت شده" :"پرداخت نشده"}</p>
+                         <div className="w-full flex flex-row-reverse text-sm items-center justify-between">
+                            <p>شاخص توده بدنی :</p>
+                            {isLoading ? <div className="w-10 h-2 bg-gray-400 animate-pulse"></div> :<p>{user?.bmi}</p>}
                         </div>
-                         <div className="w-full flex-row-reverse text-sm items-center justify-between">
+                         <div className="w-full flex flex-row-reverse text-sm items-center justify-between">
+                            <p>جنسیت :</p>
+                            {isLoading ? <div className="w-10 h-2 bg-gray-400 animate-pulse"></div> :<p>{user?.gender == "male" ? "مرد" : "زن"}</p>}
+                        </div>
+                         {/* <div className="w-full flex-row-reverse text-sm items-center justify-between">
+                            <p>نام :</p>
+                            <p>{user?.first_name} {user?.last_name}</p>
+                        </div> */}
+                         <div className="w-full flex flex-row-reverse text-sm items-center justify-between">
+                            <p>وضعیت شهریه :</p>
+                            {isLoading ? <div className="w-10 h-2 bg-gray-400 animate-pulse"></div> :<p>{user?.is_fee_paid ? "پرداخت شده" :"پرداخت نشده"}</p>}
+                        </div>
+                         <div className="w-full flex flex-row-reverse text-sm items-center justify-between">
                             <p>مربی :</p>
-                            <p>{user?.trainer_id ? "دارد" : "ندارد"}</p>
+                            {isLoading ? <div className="w-10 h-2 bg-gray-400 animate-pulse"></div> :<p>{user?.trainer_id ? "دارد" : "ندارد"}</p>}
                         </div>
                     </div>
                 </div>
