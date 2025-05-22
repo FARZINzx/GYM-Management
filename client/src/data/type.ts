@@ -21,8 +21,8 @@ export interface User {
      age : number
      phone : string
      gender : "male" | "female"
-     weight_kg : string
-     height_cm : string
+     weight_kg : number
+     height_cm : number
      bmi : string
      is_fee_paid: string,
      trainer_id : any,
