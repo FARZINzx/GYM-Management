@@ -20,13 +20,14 @@ export interface User {
      last_name : string
      age : number
      phone : string
-     gender : string
+     gender : "male" | "female"
      weight_kg : string
      height_cm : string
      bmi : string
      is_fee_paid: string,
      trainer_id : any,
      created_at : string
+     birth_date : string
 }
 
 

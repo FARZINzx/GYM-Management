@@ -5,6 +5,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+//zustand
+import { useSelectedUserStore } from '@/zustand/stores/selected-user-store';
 //shadCn
 import { Button } from "@/components/ui/button";
 import {
@@ -30,12 +32,18 @@ import "react-multi-date-picker/styles/layouts/mobile.css"
 import "react-multi-date-picker/styles/colors/yellow.css"
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css"
 import DateObject from "react-date-object";
+import { useSearchParams } from "next/navigation";
+
 
 
 
 
 export default function Register() {
     const [loading, setLoading] = useState<boolean>(false);
+
+    const searchParams = useSearchParams()
+    const { selectedUser, clearSelectedUser } = useSelectedUserStore();
+    const isEditMode = searchParams.has('edit');
 
     const router = useRouter();
 
@@ -96,13 +104,13 @@ export default function Register() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: '',
-            familyName: '',
-            phone: '',
-            birth: '',
-            weight: undefined,
-            height: undefined,
-            gender: 'male'
+            name: isEditMode ? selectedUser?.first_name : '',
+            familyName: isEditMode ? selectedUser?.last_name : '',
+            phone: isEditMode ? selectedUser?.phone : '',
+            birth: isEditMode ? selectedUser?.birth_date : '',
+            weight: isEditMode ? Number(selectedUser?.weight_kg) : undefined,
+            height: isEditMode ? Number(selectedUser?.height_cm) : undefined,
+            gender: isEditMode ? selectedUser?.gender : 'male'
         },
         mode: "onChange"
     }
