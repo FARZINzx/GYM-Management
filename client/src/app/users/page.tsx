@@ -65,7 +65,7 @@ export default function Users() {
                     {/* Grid of Management Options */}
                     <div className="grid grid-cols-1 gap-3">
                         <div className="w-full grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl py-2">
-                            {["وضعیت شهریه", "نام و نام خانوادگی"].map((item, index) => (
+                            {["نام و نام خانوادگی","وضعیت شهریه"].map((item, index) => (
                                 <p
                                     key={index}
                                     className="pb-1 text-sm min-w-[380]:text-base  underline underline-offset-10 text-center"
@@ -82,21 +82,21 @@ export default function Users() {
                                         className="w-full animate-pulse gap-1 bg-gray-500 rounded-xl h-10 duration-500">
                                     </div>
                                 ))
-                                : <div className="flex flex-col gap-2 overflow-y-scroll h-full">
+                                : <div className="flex flex-col gap-2 overflow-y-scroll h-full hide-scrollbar">
                                     {users.map((user) => (
                                         <Link
                                             href={`/users/${user.id}`}
                                             key={user.id}
-                                            className="w-full place-items-center place-content-center grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl flex-row-reverse py-2 active:scale-90 duration-500 text-sm min-w-[380]:text-base"
+                                            className="w-full place-items-center place-content-center grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl py-2 active:scale-90 duration-500 text-sm min-w-[380]:text-base"
                                         >
-                                            <p className="text-center order-1">{user.first_name} {user.last_name}</p>{" "}
+                                            <p className="text-center">{user.first_name} {user.last_name}</p>{" "}
                                             {user.is_fee_paid ? (
-                                                <div className="flex items-center gap-1 justify-center flex-row-reverse text-green-600 text-center">
+                                                <div className="flex items-center gap-1 justify-center text-green-600 text-center">
                                                     <UserRoundCheck className="w-6 h-6" />
                                                     <p>پرداخت شده</p>
                                                 </div>
                                             ) : (
-                                                <div className="flex items-center gap-1 text-red-600 text-center justify-center flex-row-reverse">
+                                                <div className="flex items-center gap-1 text-red-600 text-center justify-center">
                                                     <UserRoundX className="w-6 h-6" />
                                                     <p>پرداخت نشده</p>
                                                 </div>

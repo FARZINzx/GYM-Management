@@ -25,7 +25,8 @@ export interface User {
      height_cm : string
      bmi : string
      is_fee_paid: string,
-     trainer_id : any
+     trainer_id : any,
+     created_at : string
 }
 
 

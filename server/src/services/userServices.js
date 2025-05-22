@@ -43,8 +43,44 @@ export async function getUser(id) {
             return { success: false, message: 'User not found', status: 404 };
         }
 
-        return { success: true, message: 'User found', data: rows[0], status: 200 }; 
+        const userData = { ...rows[0] };
+        
+        // Calculate age if birth date exists
+        if (userData.birth_date) {
+            const birthDate = new Date(userData.birth_date);
+            const today = new Date();
+            
+            // Get UTC dates to avoid timezone issues
+            const birthYear = birthDate.getUTCFullYear();
+            const birthMonth = birthDate.getUTCMonth();
+            const birthDay = birthDate.getUTCDate();
+            
+            const currentYear = today.getUTCFullYear();
+            const currentMonth = today.getUTCMonth();
+            const currentDay = today.getUTCDate();
+
+            let age = currentYear - birthYear;
+
+            // Check if birthday hasn't occurred yet this year
+            if (currentMonth < birthMonth || 
+                (currentMonth === birthMonth && currentDay < birthDay)) {
+                age--;
+            }
+
+            userData.age = age;
+        }
+
+        return { 
+            success: true, 
+            message: 'User found', 
+            data: userData, 
+            status: 200 
+        }; 
     } catch (e) {
-        return { success: false, message: e.message, status: 500 };
+        return { 
+            success: false, 
+            message: e.message, 
+            status: 500 
+        };
     }
 }

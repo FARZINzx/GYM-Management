@@ -18,6 +18,8 @@ export async function getUser(req, res, next) {
     try {
         const { id } = req.params;
         const result = await viewUserService(id);
+        console.log(result);
+        
 
         return sendResponse(res, result);
     } catch (error) {
