@@ -377,14 +377,14 @@ export default function Register() {
                             control={form.control}
                             render={({ field }) => (
                                 <FormItem className="flex flex-col items-end w-full">
-                                    <div className="flex items-center justify-between w-full flex-row-reverse">
-                                        <div className={`text-[var(--primary)]`}>: جنسیت</div>
+                                    <div className="flex items-center justify-between w-full ">
+                                        <div className={`text-[var(--primary)]`}> جنسیت :</div>
                                         <FormControl>
                                             <RadioGroup
                                                 {...field}
                                                 onValueChange={field.onChange}
                                                 value={field.value || ""}
-                                                className="flex items-center flex-row-reverse"
+                                                className="flex items-center"
                                             >
                                                 <div className="flex items-center space-x-2">
                                                     <RadioGroupItem value="male" id="r1" />

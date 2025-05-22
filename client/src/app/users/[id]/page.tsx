@@ -8,6 +8,7 @@ import clsx from "clsx";
 import toast from "react-hot-toast";
 import { User } from "@/data/type";
 import { getUser } from "@/lib/services";
+import {convertToJalali} from '@/lib/utils'
 import { UserPen , UserRoundX } from "lucide-react";
 
 function GridRow({
@@ -95,7 +96,7 @@ export default function UserProfile() {
                             </GridRow>
 
                             <GridRow label="تاریخ عضویت :" isLoading={isLoading}>
-                                {user?.created_at}
+                                {convertToJalali(user?.created_at)}
                             </GridRow>
 
                             <GridRow

@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import moment from 'moment-jalaali';
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -21,4 +23,11 @@ export function toggleFullScreen() {
       console.error(`Error attempting to exit full-screen mode: ${err.message}`);
     });
   }
+}
+
+moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true });
+export function convertToJalali(dateString: string | undefined): string | null {
+  if(!dateString) return null
+  const date = moment(dateString)
+  return date.format('jYYYY/jM/jD');
 }
