@@ -48,6 +48,7 @@ export default function UserProfile() {
             setIsLoading(true);
             try {
                 const result = await getUser(id);
+                console.log('result' , result)
                 if (result.success) {
                     setUser(result.data);
                 } else {

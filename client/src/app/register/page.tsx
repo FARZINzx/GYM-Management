@@ -21,6 +21,8 @@ import opacity from "react-element-popper/animations/opacity"
 import "react-multi-date-picker/styles/layouts/mobile.css"
 import "react-multi-date-picker/styles/colors/yellow.css"
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css"
+import { convertToJalali } from '@/lib/utils'
+
 
 export default function Register() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -29,6 +31,8 @@ export default function Register() {
     const { selectedUser, clearSelectedUser } = useSelectedUserStore();
     const isEditMode = searchParams.has('edit');
     const router = useRouter();
+    console.log(selectedUser);
+    
 
     const formSchema = z.object({
         name: z.string({ required_error: "نام وارد نشده است" }),
@@ -111,6 +115,8 @@ export default function Register() {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setLoading(true);
+        console.log(values);
+        
 
         try {
             const url = isEditMode 
@@ -126,7 +132,7 @@ export default function Register() {
                     first_name: values.name,
                     last_name: values.familyName,
                     phone: values.phone,
-                    birth_date: values.birth,
+                    birth_date: convertToJalali(values.birth),
                     weight_kg: values.weight,
                     height_cm: values.height,
                     gender: values.gender,
@@ -142,7 +148,7 @@ export default function Register() {
                 
                 if (isEditMode) {
                     clearSelectedUser();
-                    router.push(`/user/${selectedUser?.id}`);
+                    router.push(`/users/${selectedUser?.id}`);
                 } else {
                     form.reset();
                     router.push("/");
