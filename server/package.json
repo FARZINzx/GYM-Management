@@ -8,6 +8,7 @@
     "express-rate-limit": "^7.5.0",
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
+    "jalaali-js": "^1.2.8",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.14.1"
   },

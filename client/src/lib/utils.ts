@@ -31,3 +31,12 @@ export function convertToJalali(dateString: string | undefined): string | null {
   const date = moment(dateString)
   return date.format('jYYYY/jM/jD');
 }
+
+
+
+export function isoToJalali(isoString : string) {
+    if (!isoString) return '';
+    const datePart = isoString.split('T')[0];
+    const [year, month, day] = datePart.split('-').map(Number);
+    return `${year}/${month}/${day}`;
+}

@@ -21,7 +21,7 @@ import opacity from "react-element-popper/animations/opacity"
 import "react-multi-date-picker/styles/layouts/mobile.css"
 import "react-multi-date-picker/styles/colors/yellow.css"
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css"
-import { convertToJalali } from '@/lib/utils'
+import { isoToJalali } from '@/lib/utils'
 
 
 export default function Register() {
@@ -32,7 +32,7 @@ export default function Register() {
     const isEditMode = searchParams.has('edit');
     const router = useRouter();
     console.log(selectedUser);
-    
+
 
     const formSchema = z.object({
         name: z.string({ required_error: "نام وارد نشده است" }),
@@ -79,7 +79,7 @@ export default function Register() {
                 name: selectedUser.first_name,
                 familyName: selectedUser.last_name,
                 phone: selectedUser.phone,
-                birth: selectedUser.birth_date,
+                birth: isoToJalali(selectedUser.birth_date),
                 weight: selectedUser.weight_kg,
                 height: selectedUser.height_cm,
                 gender: selectedUser.gender
@@ -115,11 +115,11 @@ export default function Register() {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setLoading(true);
-        console.log(values);
-        
+        console.log('values', values);
+
 
         try {
-            const url = isEditMode 
+            const url = isEditMode
                 ? `http://localhost:3001/api/user/${selectedUser?.id}`
                 : 'http://localhost:3001/api/user/register';
 
@@ -132,7 +132,7 @@ export default function Register() {
                     first_name: values.name,
                     last_name: values.familyName,
                     phone: values.phone,
-                    birth_date: convertToJalali(values.birth),
+                    birth_date: values.birth,
                     weight_kg: values.weight,
                     height_cm: values.height,
                     gender: values.gender,
@@ -145,7 +145,7 @@ export default function Register() {
                 toast.success(data.message || (isEditMode ? 'اطلاعات با موفقیت بروزرسانی شد' : 'ثبت نام موفقیت‌آمیز بود'), {
                     style: { background: "#31C440", color: "#fff" }
                 });
-                
+
                 if (isEditMode) {
                     clearSelectedUser();
                     router.push(`/users/${selectedUser?.id}`);
@@ -190,7 +190,7 @@ export default function Register() {
                 <p className="md:text-4xl text-3xl text-[var(--secondary)]">
                     {isEditMode ? 'ویرایش کاربر' : 'ثبت نام'}
                 </p>
-                
+
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="sm-plus:px-0 space-y-6 bg-secondary p-6 rounded-xl">
                         {/* Name Field */}
@@ -389,9 +389,8 @@ export default function Register() {
                         />
 
                         <Button
-                            className={`h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold active:scale-95 duration-500 ${
-                                (isEditMode && !hasChanges) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-90'
-                            }`}
+                            className={`h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold active:scale-95 duration-500 ${(isEditMode && !hasChanges) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-90'
+                                }`}
                             type="submit"
                             disabled={(isEditMode && !hasChanges) || loading}
                         >

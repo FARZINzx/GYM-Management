@@ -1,5 +1,5 @@
 import { query } from "../config/db.js";
-
+import { calculateAgeFromJalali } from '../utils/calculateAgeFromJalali.js';
 
 export async function register(first_name, last_name, birth_date, phone, gender, weight_kg, height_cm, trainer_id) {
     try {
@@ -36,7 +36,7 @@ export async function getAll() {
     }
 }
 
-export async function getUser(id) {
+export async function  getUser(id) {
     try {
         const { rows } = await query('SELECT * FROM users WHERE id = $1', [id]);
 
@@ -45,30 +45,18 @@ export async function getUser(id) {
         }
 
         const userData = { ...rows[0] };
+        
 
-        // Calculate age if birth date exists
         if (userData.birth_date) {
-            const birthDate = new Date(userData.birth_date);
-            const today = new Date();
-
-            // Get UTC dates to avoid timezone issues
-            const birthYear = birthDate.getUTCFullYear();
-            const birthMonth = birthDate.getUTCMonth();
-            const birthDay = birthDate.getUTCDate();
-
-            const currentYear = today.getUTCFullYear();
-            const currentMonth = today.getUTCMonth();
-            const currentDay = today.getUTCDate();
-
-            let age = currentYear - birthYear;
-
-            // Check if birthday hasn't occurred yet this year
-            if (currentMonth < birthMonth ||
-                (currentMonth === birthMonth && currentDay < birthDay)) {
-                age--;
+            console.log("try birtfh" , userData.birth_date);
+            
+            try {
+                userData.age = calculateAgeFromJalali(userData.birth_date);
+                console.log('userData.age' , calculateAgeFromJalali(userData.birth_date));
+                
+            } catch (e) {
+                userData.age = null;
             }
-
-            userData.age = age;
         }
 
         return {

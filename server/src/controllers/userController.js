@@ -39,11 +39,8 @@ export async function updateUserController(req, res, next) {
         }
 
         if (userData.birth_date) {
-            console.log(userData.birth_date);
             try {
                 userData.birth_date = toGregorianISO(userData.birth_date);
-               
-
             } catch (e) {
                 return res.status(400).json({
                     success: false,

@@ -21,8 +21,6 @@ export const registerController = async (req, res) => {
 
     let birth_date_gregorian;
     try {
-        console.log('birth-date' , birth_date);
-        
         birth_date_gregorian = toGregorianISO(birth_date);
     } catch (e) {
         return res
