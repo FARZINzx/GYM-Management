@@ -16,3 +16,14 @@ body {
 .bg-secondary {
   background: var(--secondary);
 }
+
+
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+
+  /* For Chrome, Safari, and Opera */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

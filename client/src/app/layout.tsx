@@ -35,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa">
+    <html lang="fa" dir="rtl">
       <body className={`antialiased ${YekanBakh.className}`}>
         <Toaster position="top-center" reverseOrder={false} />
         {children}
