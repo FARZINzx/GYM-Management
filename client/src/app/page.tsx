@@ -38,14 +38,14 @@ export default function Home() {
     fetchRole()
   }, [])
 
-  useEffect(() => {
-    const handleClick = () => {
-      toggleFullScreen();
-    };
+  // useEffect(() => {
+  //   const handleClick = () => {
+  //     toggleFullScreen();
+  //   };
 
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
+  //   document.addEventListener("click", handleClick);
+  //   return () => document.removeEventListener("click", handleClick);
+  // }, []);
 
   if (!role) {
     return <LoadingScreen/>

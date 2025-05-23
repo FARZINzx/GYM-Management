@@ -36,14 +36,14 @@ const PageHeader = () => {
   return (
     <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
       <div className="flex items-center w-full justify-between h-full px-2">
-        <ChevronLeft
-          className="max-[400px]:size-8 size-9 duration-300 active:-translate-x-1"
-          onClick={handleBack}
-        />
-        <h1 className="text-2xl max-[400px]:text-xl font-semibold">باشگاه بدنسازی</h1>
         <RefreshCw
           className={`max-[400px]:size-8 size-9 duration-300 ${isSpinning ? "animate-spin" : ""}`}
           onClick={handleRefresh}
+        />
+        <h1 className="text-2xl max-[400px]:text-xl font-semibold">باشگاه بدنسازی</h1>
+        <ChevronLeft
+          className="max-[400px]:size-8 size-9 duration-300 active:-translate-x-1"
+          onClick={handleBack}
         />
       </div>
     </div>
