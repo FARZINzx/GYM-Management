@@ -40,7 +40,18 @@ export default function Register() {
         phone: z.string({ required_error: "شماره تلفن وارد نشده است" })
             .min(11, { message: "شماره تلفن باید ۱۱ رقم باشد" })
             .regex(/^[0-9]+$/, { message: "شماره تلفن فقط باید شامل اعداد باشد" }),
-        birth: z.string({ required_error: "تاریخ تولد وارد نشده است" }),
+        birth: z
+            .string({ required_error: "تاریخ تولد وارد نشده است" })
+            // .refine(val => {
+            //     if (!val) return false;
+            //     const date = new DateObject({ date: val, calendar: persian });
+            //     const maxDate = new DateObject({ calendar: persian }).subtract(10, 'years');
+            //     const minDate = new DateObject({ calendar: persian }).subtract(100, 'years');
+            //     return date <= maxDate && date >= minDate;
+            // }, {
+            //     message: "سن کاربر باید بین ۱۰ تا ۱۰۰ سال باشد"
+            // })
+            ,
         weight: z.preprocess(
             (val) => Number(val) || undefined,
             z.number({ invalid_type_error: "وزن باید عدد باشد" })
@@ -192,7 +203,7 @@ export default function Register() {
                 </p>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="sm-plus:px-0 space-y-6 bg-secondary p-6 rounded-xl">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
                         {/* Name Field */}
                         <FormField
                             name="name"
@@ -291,6 +302,13 @@ export default function Register() {
                                                 calendarPosition="bottom-right"
                                                 style={{ border: 0, outline: 0 }}
                                                 className="rmdp-mobile yellow bg-dark"
+                                                // maxDate={new DateObject({ calendar: persian }).subtract(10, 'years')}
+                                                minDate={new DateObject({
+                                                    calendar: persian,
+                                                    date: new DateObject({ calendar: persian })
+                                                        .subtract(100, "years")
+                                                        .subtract(1, "day")
+                                                })}
                                                 animations={[
                                                     opacity(),
                                                     transition({
