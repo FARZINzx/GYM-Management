@@ -40,3 +40,13 @@ export function isoToJalali(isoString : string) {
     const [year, month, day] = datePart.split('-').map(Number);
     return `${year}/${month}/${day}`;
 }
+
+export function convertRoleNameToPersian(roleName: string) {
+    if (!roleName) return '';
+    switch (roleName.toLowerCase()) {
+        case 'manager' : return 'مدیر';
+        case 'trainer' : return 'مربی';
+        case 'receptionist' : return 'منشی';
+        default : return 'ادمین'
+    }
+}

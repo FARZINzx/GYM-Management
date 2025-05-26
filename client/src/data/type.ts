@@ -30,4 +30,16 @@ export interface User {
      birth_date : string
 }
 
+export interface PersonnelType {
+     id: string
+     first_name : string
+     last_name : string
+     role_name : string
+     age?:number
+     created_at? : string
+     is_active?:boolean
+     phone?:number
+     address?:string
+}
+
 

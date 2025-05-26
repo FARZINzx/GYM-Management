@@ -20,9 +20,9 @@ export const getAllUsers = async () => {
     }
 };
 
-export const getUser = async (id : any) => {
+export const getAllPersonnel = async () => {
     try {
-        const response = await fetch(`http://localhost:3001/api/user/${id}`, {
+        const response = await fetch(`http://localhost:3001/api/personnel`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -38,4 +38,6 @@ export const getUser = async (id : any) => {
         return { success: false, message: error.message || 'خطا در دریافت اطلاعات' };
     }
 };
+
+
 

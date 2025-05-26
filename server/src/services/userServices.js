@@ -48,8 +48,7 @@ export async function  getUser(id) {
         
 
         if (userData.birth_date) {
-            console.log("try birtfh" , userData.birth_date);
-            
+
             try {
                 userData.age = calculateAgeFromJalali(userData.birth_date);
                 console.log('userData.age' , calculateAgeFromJalali(userData.birth_date));

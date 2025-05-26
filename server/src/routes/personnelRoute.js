@@ -1,6 +1,8 @@
 import {Router} from 'express'
-import {getAllPersonnel} from '../controllers/personnelController.js'
+import {GetAllPersonnel} from '../controllers/personnelController.js'
 
 const router = Router()
 
-router.get('/' , getAllPersonnel)
+router.get('/' , GetAllPersonnel)
+
+export default router
