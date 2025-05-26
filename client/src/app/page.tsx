@@ -1,7 +1,7 @@
 "use client";
 import { useEffect , useState } from "react";
 //components
-import { toggleFullScreen } from "@/lib/utils";
+// import { toggleFullScreen } from "@/lib/utils";
 import LoadingScreen from "@/components/loading/loadingScreen";
 import Header from "@/components/ui/header";
 import Link from "next/link";
@@ -62,7 +62,7 @@ export default function Home() {
            
           </h2>
           {/* Grid of Management Options */}
-          <div className="grid grid-cols-2 gap-4 ">
+          <div className="grid grid-cols-2 gap-4 pb-2 ">
           {role === "manager" ? ManagerPanelItem.map((item : IconButtonProps) => (
               <Item
                 label={item.label}

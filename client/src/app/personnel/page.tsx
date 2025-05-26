@@ -1,22 +1,21 @@
-"use client";
-import {useState, useEffect} from "react";
-import Link from "next/link";
-//components
-import Header from "@/components/ui/header";
+'use client'
+import {useEffect, useState} from "react";
+//utils
 import {toggleFullScreen} from "@/lib/utils";
+import Header from "@/components/ui/header";
+import Link from "next/link";
 import toast from "react-hot-toast";
-//interface
-import {User} from '@/data/type'
-//services
-import {getAllUsers} from '@/lib/services'
+//service
+import {getAllUsers} from "@/lib/services";
 //icon
-import { UserRoundCheck, UserRoundX } from "lucide-react";
+import {UserRoundCheck, UserRoundX} from "lucide-react";
+//type
+import {User} from "@/data/type";
 
-export default function Users() {
+export default function Personnel() {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [users, setUsers] = useState<User[]>([]);
-
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -60,12 +59,12 @@ export default function Users() {
                 <Header type="page"/>
                 <div className="flex flex-col gap-12 mx-auto  px-6">
                     <h2 className="text-3xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
-                        کاربران
+                        پرسنل
                     </h2>
                     {/* Grid of Management Options */}
                     <div className="grid grid-cols-1 gap-3">
-                        <div className="w-full grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl py-2">
-                            {["نام و نام خانوادگی","وضعیت شهریه"].map((item, index) => (
+                        <div className="w-full grid grid-cols-2  bg-[var(--secondary)] rounded-xl py-2">
+                            {["نام و نام خانوادگی","سمت"].map((item, index) => (
                                 <p
                                     key={index}
                                     className="pb-1 text-sm min-w-[380]:text-base  underline underline-offset-10 text-center"

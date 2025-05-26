@@ -3,6 +3,7 @@ import cors from "cors";
 import env from "./config/env.js";
 import authRoutes from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
+import personnelRoute from "./routes/personnelRoute.js";
 // import trainerRoutes from "./routes/trainerRoutes.js"
 import { errorHandler , notFound } from "./middlewares/errorHandler.js";
 
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/user" , userRoute)
+app.use("/api/personnel" , personnelRoute)
 // app.use("/trainer" , trainerRoutes)
 
 app.use(notFound);  
