@@ -1,13 +1,15 @@
 'use client'
 import {useEffect, useState} from "react";
 //utils
-import {toggleFullScreen , convertRoleNameToPersian} from "@/lib/utils";
+import {toggleFullScreen, convertRoleNameToPersian} from "@/lib/utils";
 import Header from "@/components/ui/header";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import {useRouter} from "next/navigation";
 //service
 import {getAllPersonnel} from "@/lib/services";
 //icon
+import {UserRoundPlus} from 'lucide-react'
 //type
 import {PersonnelType} from "@/data/type";
 
@@ -15,6 +17,7 @@ export default function Personnel() {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [personnels, setPersonnels] = useState<PersonnelType[]>([]);
+    const router = useRouter()
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -26,15 +29,15 @@ export default function Personnel() {
                 if (result.success) {
                     setPersonnels(result.data);
                 } else {
-                    toast.error(result.message || 'خطایی رخ داده است' , {
+                    toast.error(result.message || 'خطایی رخ داده است', {
                         style: {
                             background: "red",
                             color: "#fff",
                         }
                     });
                 }
-            } catch (e : any) {
-                toast.error(e.message || 'خطایی رخ داده است' , {
+            } catch (e: any) {
+                toast.error(e.message || 'خطایی رخ داده است', {
                     style: {
                         background: "red",
                         color: "#fff",
@@ -56,14 +59,22 @@ export default function Personnel() {
             <div className="max-w-[430px] mx-auto relative">
                 {/* Header */}
                 <Header type="page"/>
-                <div className="flex flex-col gap-12 mx-auto  px-6">
-                    <h2 className="text-3xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
-                        پرسنل
-                    </h2>
+                <div className="flex flex-col gap-6 mx-auto  px-6">
+                    <div
+                        className='w-full flex text-[var(--secondary)] text-center border-b border-[var(--secondary)] items-center pb-2 justify-center relative'>
+                        <h2 className="text-3xl">
+                            پرسنل
+                        </h2>
+                        <button onClick={() => router.push('/personnel/addPersonnel')}
+                                className='absolute left-2 top-1/2 -translate-y-1/2 active:scale-90 duration-500'>
+                            <UserRoundPlus/>
+                        </button>
+                    </div>
+
                     {/* Grid of Management Options */}
                     <div className="grid grid-cols-1 gap-3">
                         <div className="w-full grid grid-cols-2  bg-[var(--secondary)] rounded-xl py-2">
-                            {["نام و نام خانوادگی","سمت"].map((item, index) => (
+                            {["نام و نام خانوادگی", "سمت"].map((item, index) => (
                                 <p
                                     key={index}
                                     className="pb-1 text-sm min-w-[380]:text-base  underline underline-offset-10 text-center"
@@ -89,9 +100,9 @@ export default function Personnel() {
                                         >
                                             <p className="text-center">{personnel.first_name} {personnel.last_name}</p>{" "}
 
-                                                <div className="text-[var(--primary)] text-center font-medium">
-                                                    <p>{convertRoleNameToPersian(personnel.role_name)}</p>
-                                                </div>
+                                            <div className="text-[var(--primary)] text-center font-semibold ">
+                                                <p>{convertRoleNameToPersian(personnel.role_name)}</p>
+                                            </div>
 
                                         </Link>
                                     ))}

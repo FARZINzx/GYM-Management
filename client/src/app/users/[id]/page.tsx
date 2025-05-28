@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/ui/header";
-import { toggleFullScreen } from "@/lib/utils";
+// import { toggleFullScreen } from "@/lib/utils";
 import clsx from "clsx";
 import toast from "react-hot-toast";
 import { User } from "@/data/type";
@@ -48,7 +48,6 @@ export default function UserProfile() {
             setIsLoading(true);
             try {
                 const result = await getUser(id);
-                console.log('result' , result)
                 if (result.success) {
                     setUser(result.data);
                 } else {

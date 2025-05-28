@@ -58,7 +58,7 @@ export default function Users() {
             <div className="max-w-[430px] mx-auto relative">
                 {/* Header */}
                 <Header type="page"/>
-                <div className="flex flex-col gap-12 mx-auto  px-6">
+                <div className="flex flex-col gap-6 mx-auto  px-6">
                     <h2 className="text-3xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
                         کاربران
                     </h2>

@@ -12,61 +12,57 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import DateObject from "react-date-object";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Spinner from "@/components/loading/LoadingSpinner";
 import Image from "next/image";
-import transition from "react-element-popper/animations/transition"
-import opacity from "react-element-popper/animations/opacity"
-import "react-multi-date-picker/styles/layouts/mobile.css"
-import "react-multi-date-picker/styles/colors/yellow.css"
-import "react-multi-date-picker/styles/backgrounds/bg-dark.css"
-import { isoToJalali } from '@/lib/utils'
+import transition from "react-element-popper/animations/transition";
+import opacity from "react-element-popper/animations/opacity";
+import "react-multi-date-picker/styles/layouts/mobile.css";
+import "react-multi-date-picker/styles/colors/yellow.css";
+import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
+import { isoToJalali } from '@/lib/utils';
+import { getAllRole } from "@/lib/services";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+type Role = {
+    id: number;
+    role_name: string;
+};
 
-export default function Register() {
+const formSchema = z.object({
+    name: z.string({ required_error: "نام وارد نشده است" })
+        .min(2, { message: "نام باید حداقل ۲ کاراکتر باشد" })
+        .max(20, { message: "نام نمی‌تواند بیش از ۲۰ کاراکتر باشد" }),
+    familyName: z.string({ required_error: "نام خانوادگی وارد نشده است" })
+        .min(2, { message: "نام خانوادگی باید حداقل ۲ کاراکتر باشد" })
+        .max(30, { message: "نام خانوادگی نمی‌تواند بیش از ۳۰ کاراکتر باشد" }),
+    phone: z.string({ required_error: "شماره تلفن وارد نشده است" })
+        .length(11, { message: "شماره تلفن باید ۱۱ رقم باشد" })
+        .regex(/^09[0-9]{9}$/, { message: "شماره تلفن معتبر نیست" }),
+    birth: z.string({ required_error: "تاریخ تولد وارد نشده است" }),
+        // .refine(val => {
+        //     if (!val) return false;
+        //     const date = new DateObject({ date: val, calendar: persian });
+        //     const maxDate = new DateObject({ calendar: persian }).subtract(18, 'years');
+        //     const minDate = new DateObject({ calendar: persian }).subtract(100, 'years');
+        //     return date <= maxDate && date >= minDate;
+        // }, { message: "سن باید بین ۱۸ تا ۱۰۰ سال باشد" }),
+    salary: z.number({
+        required_error: "مقدار حقوق دریافتی وارد نشده است",
+        invalid_type_error: "حقوق باید عدد باشد"
+    })
+        .min(0, { message: "حقوق نمی‌تواند منفی باشد" })
+        .max(1000000000, { message: "حقوق نمی‌تواند بیش از ۱ میلیارد ریال باشد" }),
+    role: z.string({ required_error: "لطفاً یک نقش را انتخاب کنید" })
+});
+
+export default function AddPersonnel() {
     const [loading, setLoading] = useState<boolean>(false);
     const [hasChanges, setHasChanges] = useState<boolean>(false);
     const searchParams = useSearchParams();
     const { selectedUser, clearSelectedUser } = useSelectedUserStore();
     const isEditMode = searchParams.has('edit');
     const router = useRouter();
-
-
-    const formSchema = z.object({
-        name: z.string({ required_error: "نام وارد نشده است" }),
-        familyName: z.string({ required_error: "نام خانوادگی وارد نشده است" }),
-        phone: z.string({ required_error: "شماره تلفن وارد نشده است" })
-            .min(11, { message: "شماره تلفن باید ۱۱ رقم باشد" })
-            .regex(/^[0-9]+$/, { message: "شماره تلفن فقط باید شامل اعداد باشد" }),
-        birth: z
-            .string({ required_error: "تاریخ تولد وارد نشده است" })
-            // .refine(val => {
-            //     if (!val) return false;
-            //     const date = new DateObject({ date: val, calendar: persian });
-            //     const maxDate = new DateObject({ calendar: persian }).subtract(10, 'years');
-            //     const minDate = new DateObject({ calendar: persian }).subtract(100, 'years');
-            //     return date <= maxDate && date >= minDate;
-            // }, {
-            //     message: "سن کاربر باید بین ۱۰ تا ۱۰۰ سال باشد"
-            // })
-            ,
-        weight: z.preprocess(
-            (val) => Number(val) || undefined,
-            z.number({ invalid_type_error: "وزن باید عدد باشد" })
-                .min(1, { message: "وزن باید بزرگ‌تر از ۰ باشد" })
-                .max(250, { message: "وزن نمی‌تواند بیشتر از ۳ رقم باشد" })
-                .optional()
-        ),
-        height: z.preprocess(
-            (val) => Number(val) || undefined,
-            z.number({ invalid_type_error: "قد باید عدد باشد" })
-                .min(50, { message: "قد باید حداقل ۵۰ سانتیمتر باشد" })
-                .max(250, { message: "قد نمی‌تواند بیشتر از ۳ رقم باشد" })
-                .optional()
-        ),
-        gender: z.enum(["male", "female"], { required_error: "جنسیت انتخاب نشده است" }),
-    });
+    const [roles, setRoles] = useState<Role[] | null>(null);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -75,29 +71,48 @@ export default function Register() {
             familyName: '',
             phone: '',
             birth: '',
-            weight: undefined,
-            height: undefined,
-            gender: 'male'
+            salary: 0,
+            role: '',
         },
         mode: "onChange"
     });
 
-    // Initialize form with user data in edit mode
+    useEffect(() => {
+        const fetchRoles = async () => {
+            setLoading(true);
+            try {
+                const result = await getAllRole();
+                if (result.success) {
+                    setRoles(result.data);
+                } else {
+                    toast.error(result.message || "خطایی رخ داده است", {
+                        style: { background: "red", color: "#fff" },
+                    });
+                }
+            } catch (e: any) {
+                toast.error(e.message || "خطایی رخ داده است", {
+                    style: { background: "red", color: "#fff" },
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchRoles();
+    }, []);
+
     useEffect(() => {
         if (isEditMode && selectedUser) {
             form.reset({
                 name: selectedUser.first_name,
                 familyName: selectedUser.last_name,
                 phone: selectedUser.phone,
-                birth: isoToJalali(selectedUser.birth_date),
-                weight: selectedUser.weight_kg,
-                height: selectedUser.height_cm,
-                gender: selectedUser.gender
+                birth: isoToJalali(selectedUser.birth_date)
+                // salary: selectedUser.salary,
+                // role: selectedUser.role
             });
         }
     }, [isEditMode, selectedUser, form]);
 
-    // Check for form changes
     useEffect(() => {
         const subscription = form.watch((values, { name }) => {
             if (!isEditMode) {
@@ -111,10 +126,9 @@ export default function Register() {
                 values.name !== selectedUser.first_name ||
                 values.familyName !== selectedUser.last_name ||
                 values.phone !== selectedUser.phone ||
-                values.birth !== selectedUser.birth_date ||
-                values.weight !== selectedUser.weight_kg ||
-                values.height !== selectedUser.height_cm ||
-                values.gender !== selectedUser.gender
+                values.birth !== isoToJalali(selectedUser.birth_date)
+                // values.salary !== selectedUser.salary ||
+                // values.role !== selectedUser.role
             );
 
             setHasChanges(hasChanged);
@@ -125,11 +139,10 @@ export default function Register() {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setLoading(true);
-
         try {
             const url = isEditMode
-                ? `http://localhost:3001/api/user/${selectedUser?.id}`
-                : 'http://localhost:3001/api/user/register';
+                ? `http://localhost:3001/api/personnel/${selectedUser?.id}`
+                : 'http://localhost:3001/api/personnel/register';
 
             const method = isEditMode ? 'PUT' : 'POST';
 
@@ -141,9 +154,8 @@ export default function Register() {
                     last_name: values.familyName,
                     phone: values.phone,
                     birth_date: values.birth,
-                    weight_kg: values.weight,
-                    height_cm: values.height,
-                    gender: values.gender,
+                    salary: values.salary,
+                    role: values.role,
                 }),
             });
 
@@ -175,6 +187,20 @@ export default function Register() {
         }
     };
 
+    const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number) => void) => {
+        const value = e.target.value.replace(/,/g, '');
+        if (value === '') {
+            onChange(0);
+            return;
+        }
+        if (!isNaN(Number(value))) {
+            const parsedValue = parseInt(value, 10);
+            if (parsedValue >= 0) {
+                onChange(parsedValue);
+            }
+        }
+    };
+
     return (
         <div className="w-full min-h-screen relative flex justify-center">
             <button
@@ -200,7 +226,9 @@ export default function Register() {
                 </p>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
+                    <form onSubmit={form.handleSubmit(onSubmit)}
+                          className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
+
                         {/* Name Field */}
                         <FormField
                             name="name"
@@ -282,9 +310,14 @@ export default function Register() {
                                         تاریخ تولد
                                     </div>
                                     <FormControl>
-                                        <div className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0" style={{ direction: "rtl" }}>
+                                        <div className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                             style={{ direction: "rtl" }}>
                                             <DatePicker
-                                                value={field.value ? new DateObject({ date: field.value, calendar: persian, locale: persian_fa }) : ""}
+                                                value={field.value ? new DateObject({
+                                                    date: field.value,
+                                                    calendar: persian,
+                                                    locale: persian_fa
+                                                }) : ""}
                                                 onChange={(date) => {
                                                     if (date?.isValid) {
                                                         const formatted = date.format("YYYY/MM/DD");
@@ -299,7 +332,6 @@ export default function Register() {
                                                 calendarPosition="bottom-right"
                                                 style={{ border: 0, outline: 0 }}
                                                 className="rmdp-mobile yellow bg-dark"
-                                                // maxDate={new DateObject({ calendar: persian }).subtract(10, 'years')}
                                                 minDate={new DateObject({
                                                     calendar: persian,
                                                     date: new DateObject({ calendar: persian })
@@ -321,24 +353,23 @@ export default function Register() {
                             )}
                         />
 
-                        {/* Weight Field */}
+                        {/* Salary Field */}
                         <FormField
-                            name="weight"
+                            name="salary"
                             control={form.control}
                             render={({ field }) => (
                                 <FormItem className="relative w-full">
                                     <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
-                                        وزن (کیلو گرم)
+                                        حقوق دریافتی (ریال)
                                     </div>
                                     <FormControl>
                                         <input
                                             {...field}
-                                            type="number"
+                                            type="text"
                                             dir="ltr"
-                                            min={0}
-                                            max={250}
-                                            value={field.value ?? ""}
-                                            onChange={(e) => field.onChange(e.target.value)}
+                                            maxLength={12}
+                                            value={field.value.toLocaleString('en-US')}
+                                            onChange={(e) => handleSalaryChange(e, field.onChange)}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -347,65 +378,42 @@ export default function Register() {
                             )}
                         />
 
-                        {/* Height Field */}
+                        {/* Role Selection */}
                         <FormField
-                            name="height"
                             control={form.control}
+                            name="role"
                             render={({ field }) => (
                                 <FormItem className="relative w-full">
                                     <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
-                                        قد (سانتی متر)
+                                        نقش
                                     </div>
-                                    <FormControl>
-                                        <input
-                                            {...field}
-                                            type="number"
-                                            dir="ltr"
-                                            min={0}
-                                            max={250}
-                                            value={field.value ?? ""}
-                                            onChange={(e) => field.onChange(e.target.value)}
-                                            className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
-                                        />
-                                    </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600" />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Gender Field */}
-                        <FormField
-                            name="gender"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col items-end w-full">
-                                    <div className="flex items-center justify-between w-full">
-                                        <div className="text-[var(--primary)]">جنسیت :</div>
+                                    <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
-                                            <RadioGroup
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                                className="flex items-center"
-                                            >
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="male" id="r1" />
-                                                    <Label htmlFor="r1">مذکر</Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="female" id="r2" />
-                                                    <Label htmlFor="r2">مونث</Label>
-                                                </div>
-                                            </RadioGroup>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="لطفا یک نقش انتخاب کنید" />
+                                            </SelectTrigger>
                                         </FormControl>
-                                    </div>
+                                        <SelectContent className='z-50 bg-[var(--secondary)]'>
+                                            {roles?.map((role) => (
+                                                <SelectItem
+                                                    className='hover:bg-gray-300 duration-300 text-[var(--primary)]'
+                                                    key={role.id}
+                                                    value={role.role_name}
+                                                >
+                                                    {role.role_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
                         />
 
                         <Button
-                            className={`h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold active:scale-95 duration-500 ${(isEditMode && !hasChanges) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-90'
-                                }`}
+                            className={`h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold active:scale-95 duration-500 ${
+                                (isEditMode && !hasChanges) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-90'
+                            }`}
                             type="submit"
                             disabled={(isEditMode && !hasChanges) || loading}
                         >
