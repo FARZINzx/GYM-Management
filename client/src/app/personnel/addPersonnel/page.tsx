@@ -52,7 +52,9 @@ const formSchema = z.object({
     })
         .min(0, { message: "حقوق نمی‌تواند منفی باشد" })
         .max(1000000000, { message: "حقوق نمی‌تواند بیش از ۱ میلیارد ریال باشد" }),
-    role: z.string({ required_error: "لطفاً یک نقش را انتخاب کنید" })
+    role: z.string({ required_error: "لطفاً یک نقش را انتخاب کنید" }),
+    address : z.string({required_error : "آدرس وارد نشده است"})
+        .max(100 , {message : " آدرس باید حداکثر 100 کاراکتر باشد "})
 });
 
 export default function AddPersonnel() {
@@ -73,6 +75,7 @@ export default function AddPersonnel() {
             birth: '',
             salary: 0,
             role: '',
+            address: ''
         },
         mode: "onChange"
     });
@@ -108,13 +111,14 @@ export default function AddPersonnel() {
                 phone: selectedUser.phone,
                 birth: isoToJalali(selectedUser.birth_date)
                 // salary: selectedUser.salary,
-                // role: selectedUser.role
+                // role: selectedUser.role,
+                // address : selectedUser.address
             });
         }
     }, [isEditMode, selectedUser, form]);
 
     useEffect(() => {
-        const subscription = form.watch((values, { name }) => {
+        const subscription = form.watch((values) => {
             if (!isEditMode) {
                 setHasChanges(true);
                 return;
@@ -129,6 +133,7 @@ export default function AddPersonnel() {
                 values.birth !== isoToJalali(selectedUser.birth_date)
                 // values.salary !== selectedUser.salary ||
                 // values.role !== selectedUser.role
+                // address : selectedUser.address
             );
 
             setHasChanges(hasChanged);
@@ -156,6 +161,7 @@ export default function AddPersonnel() {
                     birth_date: values.birth,
                     salary: values.salary,
                     role: values.role,
+                    address : values.address
                 }),
             });
 
@@ -178,8 +184,8 @@ export default function AddPersonnel() {
                     style: { background: "red", color: "#fff" }
                 });
             }
-        } catch (error) {
-            toast.error('مشکل در ارتباط با سرور', {
+        } catch (error : any) {
+            toast.error( error.message || 'مشکل در ارتباط با سرور', {
                 style: { background: "red", color: "#fff" }
             });
         } finally {
@@ -405,6 +411,28 @@ export default function AddPersonnel() {
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                    <FormMessage dir="rtl" className="text-red-600" />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* address Field */}
+                        <FormField
+                            name="address"
+                            control={form.control}
+                            render={({ field }) => (
+                                <FormItem className="relative w-full">
+                                    <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
+                                        آدرس
+                                    </div>
+                                    <FormControl>
+                                        <textarea
+                                            {...field}
+                                            rows={4}
+                                            maxLength={100}
+                                            className=" w-full py-2 rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                        />
+                                    </FormControl>
                                     <FormMessage dir="rtl" className="text-red-600" />
                                 </FormItem>
                             )}
