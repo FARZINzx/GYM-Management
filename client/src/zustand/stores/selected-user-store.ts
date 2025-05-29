@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User } from '@/data/type';
+import { User} from '@/data/type';
 
 type SelectedUserState = {
   selectedUser: User | null;
