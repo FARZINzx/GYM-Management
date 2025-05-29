@@ -23,7 +23,7 @@ export async function registerService(first_name, last_name, phone, address, rol
         await client.query('BEGIN')
         const employeeRes = await client.query(`
             INSERT INTO employee (first_name, last_name , birth_date , is_active,role_id)
-                VALUES ($1, $2, $3, $4, $5, $6)
+                VALUES ($1, $2, $3, $4, $5)
         RETURNING  id`,
             [first_name, last_name, birth_date, true, role_id])
 
@@ -36,18 +36,19 @@ export async function registerService(first_name, last_name, phone, address, rol
 
         await client.query(`
             INSERT INTO employee_salary (employee_id , amount)
-                VALUES ($1 , $2 , $3)
+                VALUES ($1 , $2)
         ` , [employeeId , salary])
 
         await client.query('COMMIT')
         return {
             success: true,
             message: 'ثبت نام با موفقیت انجام شد',
-            status: 200
+            status: 201
         }
     } catch (e) {
+        console.log(e)
         await client.query('ROLLBACK')
-        return { success: false, error: e.message };
+        return { success: false, error: e.message , status: 500 };
     }finally {
         client.release()
     }

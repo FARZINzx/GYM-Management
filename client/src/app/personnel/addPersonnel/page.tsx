@@ -52,7 +52,7 @@ const formSchema = z.object({
     })
         .min(0, { message: "حقوق نمی‌تواند منفی باشد" })
         .max(1000000000, { message: "حقوق نمی‌تواند بیش از ۱ میلیارد ریال باشد" }),
-    role: z.string({ required_error: "لطفاً یک نقش را انتخاب کنید" }),
+    role: z.number({ required_error: "لطفاً یک نقش را انتخاب کنید" }).optional(),
     address : z.string({required_error : "آدرس وارد نشده است"})
         .max(100 , {message : " آدرس باید حداکثر 100 کاراکتر باشد "})
 });
@@ -74,7 +74,7 @@ export default function AddPersonnel() {
             phone: '',
             birth: '',
             salary: 0,
-            role: '',
+            role: undefined,
             address: ''
         },
         mode: "onChange"
@@ -160,7 +160,7 @@ export default function AddPersonnel() {
                     phone: values.phone,
                     birth_date: values.birth,
                     salary: values.salary,
-                    role: values.role,
+                    role_id: values.role,
                     address : values.address
                 }),
             });
@@ -228,7 +228,7 @@ export default function AddPersonnel() {
 
             <div className="z-10 pt-10 flex flex-col items-center justify-center gap-5">
                 <p className="md:text-4xl text-3xl text-[var(--secondary)]">
-                    {isEditMode ? 'ویرایش کاربر' : 'ثبت نام'}
+                    {isEditMode ? 'ویرایش پرسنل' : 'ثبت نام'}
                 </p>
 
                 <Form {...form}>
@@ -393,10 +393,11 @@ export default function AddPersonnel() {
                                     <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
                                         نقش
                                     </div>
-                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <Select  onValueChange={(value) => field.onChange(Number(value))}
+                                             value={field.value?.toString()}>
                                         <FormControl>
                                             <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="لطفا یک نقش انتخاب کنید" />
+                                                <SelectValue className=' placeholder:text-sm' placeholder="لطفا یک نقش انتخاب کنید" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent className='z-50 bg-[var(--secondary)]'>
@@ -404,9 +405,9 @@ export default function AddPersonnel() {
                                                 <SelectItem
                                                     className='hover:bg-gray-300 duration-300 text-[var(--primary)]'
                                                     key={role.id}
-                                                    value={role.role_name}
+                                                    value={role.id.toString()}
                                                 >
-                                                    {role.role_name}
+                                                    {role.role_name === 'receptionist' ? "منشی" : "مربی"}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
