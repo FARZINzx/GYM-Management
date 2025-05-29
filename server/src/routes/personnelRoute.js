@@ -1,10 +1,32 @@
 import {Router} from 'express'
-import {GetAllPersonnel, RegisterPersonnel} from '../controllers/personnelController.js'
+import {
+    getAllPersonnel,
+    registerPersonnel,
+    getPersonnel,
+    updatePersonnel,
+    deletePersonnelController
+} from '../controllers/personnelController.js'
 import {body} from 'express-validator'
 
 const router = Router()
 
-router.get('/', GetAllPersonnel)
+router.get('/', getAllPersonnel)
+
+router.get('/:id' , getPersonnel)
+
+router.put(
+    "/:id",
+    [
+            body('first_name').optional().trim().notEmpty().withMessage('First name is required'),
+            body('last_name').optional().trim().notEmpty().withMessage('Last name is required'),
+            body('phone').optional().isLength({min: 11, max: 11}).withMessage('Phone must be 11 digits'),
+            body('birth_date').optional().isISO8601().withMessage('Invalid birth date'),
+            body('salary').optional().trim().notEmpty().withMessage('salary is required'),
+            body('role_id').optional().isInt().withMessage('Invalid role ID'),
+            body('address').optional().trim().notEmpty().withMessage('Address is required')
+    ],
+    updatePersonnel
+);
 
 router.post('/register',
     [
@@ -22,7 +44,9 @@ router.post('/register',
         body('role_id').notEmpty().withMessage('Role is required'),
         body('address').notEmpty().withMessage('Address is required')
     ],
-    RegisterPersonnel
+    registerPersonnel
 )
+
+router.delete("/:id", deletePersonnelController);
 
 export default router

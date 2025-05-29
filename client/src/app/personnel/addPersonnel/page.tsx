@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSelectedUserStore } from '@/zustand/stores/selected-user-store';
+import { useSelectedPersonnelStore } from '@/zustand/stores/selected-personnel-store';
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import DatePicker from "react-multi-date-picker";
@@ -61,7 +61,7 @@ export default function AddPersonnel() {
     const [loading, setLoading] = useState<boolean>(false);
     const [hasChanges, setHasChanges] = useState<boolean>(false);
     const searchParams = useSearchParams();
-    const { selectedUser, clearSelectedUser } = useSelectedUserStore();
+    const { selectedPersonnel, clearSelectedPersonnel } = useSelectedPersonnelStore();
     const isEditMode = searchParams.has('edit');
     const router = useRouter();
     const [roles, setRoles] = useState<Role[] | null>(null);
@@ -104,18 +104,18 @@ export default function AddPersonnel() {
     }, []);
 
     useEffect(() => {
-        if (isEditMode && selectedUser) {
+        if (isEditMode && selectedPersonnel) {
             form.reset({
-                name: selectedUser.first_name,
-                familyName: selectedUser.last_name,
-                phone: selectedUser.phone,
-                birth: isoToJalali(selectedUser.birth_date)
-                // salary: selectedUser.salary,
-                // role: selectedUser.role,
-                // address : selectedUser.address
+                name: selectedPersonnel.first_name,
+                familyName: selectedPersonnel.last_name,
+                phone: selectedPersonnel.phone,
+                birth: isoToJalali(selectedPersonnel.birth_date),
+                salary: selectedPersonnel.salary,
+                role: selectedPersonnel.role_id,
+                address : selectedPersonnel.address
             });
         }
-    }, [isEditMode, selectedUser, form]);
+    }, [isEditMode, selectedPersonnel, form]);
 
     useEffect(() => {
         const subscription = form.watch((values) => {
@@ -124,29 +124,46 @@ export default function AddPersonnel() {
                 return;
             }
 
-            if (!selectedUser) return;
+            if (!selectedPersonnel) return;
 
-            const hasChanged = (
-                values.name !== selectedUser.first_name ||
-                values.familyName !== selectedUser.last_name ||
-                values.phone !== selectedUser.phone ||
-                values.birth !== isoToJalali(selectedUser.birth_date)
-                // values.salary !== selectedUser.salary ||
-                // values.role !== selectedUser.role
-                // address : selectedUser.address
-            );
+            // Create a comparison object with the same structure as form values
+            const originalValues = {
+                name: selectedPersonnel.first_name,
+                familyName: selectedPersonnel.last_name,
+                phone: selectedPersonnel.phone,
+                birth: isoToJalali(selectedPersonnel.birth_date),
+                salary: selectedPersonnel.salary,
+                role: selectedPersonnel.role_id,
+                address: selectedPersonnel.address
+            };
+
+            // Compare each field
+            const hasChanged = Object.keys(originalValues).some(key => {
+                const formValue = values[key as keyof typeof values];
+                const originalValue = originalValues[key as keyof typeof originalValues];
+
+                // Special handling for dates and numbers
+                if (key === 'birth') {
+                    return formValue !== isoToJalali(selectedPersonnel.birth_date);
+                }
+                if (key === 'salary') {
+                    return Number(formValue) !== Number(originalValue);
+                }
+
+                return formValue !== originalValue;
+            });
 
             setHasChanges(hasChanged);
         });
 
         return () => subscription.unsubscribe();
-    }, [form.watch, isEditMode, selectedUser]);
+    }, [form.watch, isEditMode, selectedPersonnel]);
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setLoading(true);
         try {
             const url = isEditMode
-                ? `http://localhost:3001/api/personnel/${selectedUser?.id}`
+                ? `http://localhost:3001/api/personnel/${selectedPersonnel?.id}`
                 : 'http://localhost:3001/api/personnel/register';
 
             const method = isEditMode ? 'PUT' : 'POST';
@@ -173,8 +190,8 @@ export default function AddPersonnel() {
                 });
 
                 if (isEditMode) {
-                    clearSelectedUser();
-                    router.push(`/users/${selectedUser?.id}`);
+                    clearSelectedPersonnel();
+                    router.push(`/personnel/${selectedPersonnel?.id}`);
                 } else {
                     form.reset();
                     router.push("/");
@@ -393,12 +410,14 @@ export default function AddPersonnel() {
                                     <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
                                         نقش
                                     </div>
-                                    <Select  onValueChange={(value) => field.onChange(Number(value))}
-                                             value={field.value?.toString()}>
+                                    <Select
+                                        onValueChange={(value) => field.onChange(Number(value))}
+                                        value={field.value?.toString()}
+                                        defaultValue={isEditMode ? selectedPersonnel?.role_id?.toString() : undefined}
+                                    >
                                         <FormControl>
                                             <SelectTrigger className="w-full">
-                                                <SelectValue className=' placeholder:text-sm' placeholder="لطفا یک نقش انتخاب کنید" />
-                                            </SelectTrigger>
+                                                <SelectValue placeholder="لطفا یک نقش انتخاب کنید" />                                          </SelectTrigger>
                                         </FormControl>
                                         <SelectContent className='z-50 bg-[var(--secondary)]'>
                                             {roles?.map((role) => (

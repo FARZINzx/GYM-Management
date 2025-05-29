@@ -50,3 +50,26 @@ export function convertRoleNameToPersian(roleName: string) {
         default : return 'ادمین'
     }
 }
+
+export const formatToPersianCurrency = (amount: number | undefined): string | undefined => {
+    if(!amount) return
+    const toPersianDigits = (num: number): string => {
+        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        return num.toString().replace(/\d/g, (digit) => persianDigits[parseInt(digit)]);
+    };
+
+    // const tomanValue = amount / 10
+    const formattedNumber = new Intl.NumberFormat('en-US').format(amount);
+    const persianNumber = toPersianDigits(parseInt(formattedNumber.replace(/,/g, '')));
+
+    // const unit = 'ریال';
+    if (amount >= 1_000_000_000) {
+        return `${toPersianDigits(Math.floor(amount / 1_000_000_000))} میلیارد `;
+    } else if (amount >= 1_000_000) {
+        return `${toPersianDigits(Math.floor(amount / 1_000_000))} میلیون `;
+    } else if (amount >= 1_000) {
+        return `${toPersianDigits(Math.floor(amount / 1_000))} هزار `;
+    }
+
+    return persianNumber;
+};

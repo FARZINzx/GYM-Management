@@ -1,4 +1,4 @@
-import { query } from "../config/db.js";
+import { getClient ,  query } from "../config/db.js";
 import { calculateAgeFromJalali } from '../utils/calculateAgeFromJalali.js';
 
 export async function register(first_name, last_name, birth_date, phone, gender, weight_kg, height_cm, trainer_id) {
@@ -112,5 +112,37 @@ export async function updateUserService(id, userData) {
         };
     } catch (e) {
         return { success: false, message: e.message, status: 500 };
+    }
+}
+
+export async function deleteUserService(id) {
+    const client = await getClient();
+    try {
+        await client.query('BEGIN');
+
+        // First check if user exists
+        const checkRes = await client.query('SELECT id FROM users WHERE id = $1', [id]);
+        if (checkRes.rowCount === 0) {
+            throw new Error('User not found');
+        }
+
+        // Delete will cascade to related tables
+        await client.query('DELETE FROM users WHERE id = $1', [id]);
+
+        await client.query('COMMIT');
+        return {
+            success: true,
+            message: 'User deleted successfully',
+            status: 200
+        };
+    } catch (e) {
+        await client.query('ROLLBACK');
+        return {
+            success: false,
+            message: e.message,
+            status: 500
+        };
+    } finally {
+        client.release();
     }
 }

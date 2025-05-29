@@ -38,8 +38,11 @@ export interface PersonnelType {
      age?:number
      created_at? : string
      is_active?:boolean
-     phone?:number
+     phone?:string
      address?:string
+     salary?:number
+     role_id : number
+     birth_date : string
 }
 
 

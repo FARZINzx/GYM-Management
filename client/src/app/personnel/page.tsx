@@ -24,7 +24,6 @@ export default function Personnel() {
             setIsLoading(true);
             try {
                 const result = await getAllPersonnel();
-                console.log(result);
 
                 if (result.success) {
                     setPersonnels(result.data);

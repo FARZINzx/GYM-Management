@@ -1,4 +1,4 @@
-import { getAll as viewAllUserService, getUser as viewUserService, updateUserService } from "../services/userServices.js";
+import { getAll as viewAllUserService, getUser as viewUserService, updateUserService , deleteUserService } from "../services/userServices.js";
 import { sendResponse } from "../middlewares/responseHandler.js";
 import {toGregorianISO} from "../utils/jalaliToGregorian.js"
 
@@ -13,7 +13,6 @@ export async function getAllUsers(req, res, next) {
         next(err);
     }
 }
-
 
 export async function getUser(req, res, next) {
     try {
@@ -58,6 +57,24 @@ export async function updateUserController(req, res, next) {
 
 
         const result = await updateUserService(id, userData)        
+        return sendResponse(res, result);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function deleteUserController(req, res, next) {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+        }
+
+        const result = await deleteUserService(id);
         return sendResponse(res, result);
     } catch (error) {
         next(error);

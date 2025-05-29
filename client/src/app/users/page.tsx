@@ -23,7 +23,6 @@ export default function Users() {
             setIsLoading(true);
             try {
                 const result = await getAllUsers();
-                console.log(result);
 
                 if (result.success) {
                     setUsers(result.data.data);

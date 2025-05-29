@@ -95,7 +95,7 @@ CREATE TABLE employee_salary
         REFERENCES employee (id)
             ON UPDATE CASCADE
             ON DELETE CASCADE,
-    amount      NUMERIC(10, 2) NOT NULL,
+    amount      NUMERIC(15, 2) NOT NULL,
     created_at  TIMESTAMPTZ    NOT NULL DEFAULT now()
 );
 
