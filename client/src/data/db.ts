@@ -23,7 +23,7 @@ export const ManagerPanelItem: IconButtonProps[] = [
         id: 2,
         label: "تعریف هزینه ها",
         icon: TrendingUpDown,
-        href: '/register'
+        href: '/services'
     },
     {
         id: 3,

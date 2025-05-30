@@ -97,6 +97,83 @@ export const getAllRole = async () => {
     }
 };
 
+export const createService = async (serviceData: { name: string; amount: number }) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/services`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                name: serviceData.name,
+                amount: serviceData.amount
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || `HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, data };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.message || 'خطا در ایجاد خدمت جدید'
+        };
+    }
+};
+
+export const getAllServices = async () => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/services`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || `HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, data };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.message || 'خطا در دریافت لیست خدمات'
+        };
+    }
+};
+
+export const getService = async (id: string) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/services/${id}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || `HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, data };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.message || 'خطا در دریافت اطلاعات خدمت'
+        };
+    }
+};
+
 
 
 

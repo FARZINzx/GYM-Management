@@ -17,6 +17,14 @@ body {
   background: var(--secondary);
 }
 
+.text-primary {
+  color: var(--primary);
+}
+
+.text-secondary {
+  color: var(--secondary);
+}
+
 
 .hide-scrollbar {
   scrollbar-width: none; /* Firefox */

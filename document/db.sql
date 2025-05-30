@@ -186,6 +186,32 @@ CREATE TABLE user_attendance
         CHECK (status IN ('present', 'absent', 'leave'))
 );
 
+
+CREATE TABLE gym_services (
+    service_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    amount NUMERIC(10,2) NOT NULL CHECK (amount >= 0),
+    duration_minutes INTEGER CHECK (duration_minutes > 0),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Update trigger for updated_at
+CREATE OR REPLACE FUNCTION update_gym_services_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER gym_services_update_trigger
+BEFORE UPDATE ON gym_services
+FOR EACH ROW
+EXECUTE FUNCTION update_gym_services_timestamp();
+
 -- ========================================================
 -- End of Gym Management Schema Script
 -- ========================================================
