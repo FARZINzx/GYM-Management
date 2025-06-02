@@ -5,16 +5,17 @@ export async function createService(
   amount,
   description = null,
   duration_minutes = null,
+  icon = null,
 ) {
   const client = await getClient();
   try {
     await client.query("BEGIN");
 
     const { rows } = await client.query(
-      `INSERT INTO gym_services (name, amount, description, duration_minutes)
-             VALUES ($1, $2, $3, $4)
+      `INSERT INTO gym_services (name, amount, description, duration_minutes, icon)
+             VALUES ($1, $2, $3, $4, $5)
              RETURNING *`,
-      [name, amount, description, duration_minutes],
+      [name, amount, description, duration_minutes, icon],
     );
 
     await client.query("COMMIT");
@@ -53,8 +54,9 @@ export async function updateService(service_id, updates) {
                 description = COALESCE($3, description),
                 duration_minutes = COALESCE($4, duration_minutes),
                 is_active = COALESCE($5, is_active),
+                icon = COALESCE($6, icon),
                 updated_at = NOW()
-             WHERE service_id = $6
+             WHERE service_id = $7
              RETURNING *`,
       [
         updates.name,
@@ -62,10 +64,10 @@ export async function updateService(service_id, updates) {
         updates.description,
         updates.duration_minutes,
         updates.is_active,
+        updates.icon,
         service_id,
       ],
     );
-
     if (rows.length === 0) {
       throw new Error("Service not found");
     }

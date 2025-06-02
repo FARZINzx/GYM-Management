@@ -7,7 +7,7 @@ import {
 
 export async function createServiceController(req, res, next) {
   try {
-    const { name, amount, description, duration_minutes } = req.body;
+    const { name, amount, description, duration_minutes, icon } = req.body;
 
     if (!name || amount === undefined) {
       return res.status(400).json({
@@ -21,6 +21,7 @@ export async function createServiceController(req, res, next) {
       amount,
       description,
       duration_minutes,
+      icon,
     );
     return res.status(result.status).json(result);
   } catch (e) {

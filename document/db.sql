@@ -194,6 +194,7 @@ CREATE TABLE gym_services (
     amount NUMERIC(10,2) NOT NULL CHECK (amount >= 0),
     duration_minutes INTEGER CHECK (duration_minutes > 0),
     is_active BOOLEAN DEFAULT TRUE,
+    icon VARCHAR(30),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

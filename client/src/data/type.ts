@@ -54,6 +54,7 @@ export interface GymService {
      is_active: boolean;
      created_at: string;
      updated_at: string;
+     icon? : string
 }
 
 

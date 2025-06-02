@@ -17,6 +17,7 @@ router.post(
       .isFloat({ min: 0 })
       .withMessage("Amount must be a positive number"),
     body("duration_minutes").optional().isInt({ min: 1 }),
+    body("icon").optional().isString().withMessage("Icon must be a string"),
   ],
   createServiceController,
 );

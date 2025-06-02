@@ -97,7 +97,7 @@ export const getAllRole = async () => {
     }
 };
 
-export const createService = async (serviceData: { name: string; amount: number }) => {
+export const createService = async (serviceData: { name: string; amount: number,icon :string }) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/services`, {
             method: 'POST',
@@ -107,7 +107,8 @@ export const createService = async (serviceData: { name: string; amount: number 
             },
             body: JSON.stringify({
                 name: serviceData.name,
-                amount: serviceData.amount
+                amount: serviceData.amount,
+                icon : serviceData.icon
             })
         });
 
@@ -140,8 +141,7 @@ export const getAllServices = async () => {
             throw new Error(error.message || `HTTP error: ${response.status}`);
         }
 
-        const data = await response.json();
-        return { success: true, data };
+        return await response.json()
     } catch (error: any) {
         return {
             success: false,
