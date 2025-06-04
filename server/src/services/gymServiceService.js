@@ -101,7 +101,7 @@ export async function deleteService(service_id) {
     }
 
     await client.query("COMMIT");
-    return { success: true, message: "Service deactivated", status: 200 };
+    return { success: true, message: "سرویس با موفقیت حذف شد", status: 200 };
   } catch (e) {
     await client.query("ROLLBACK");
     return { success: false, error: e.message, status: 500 };

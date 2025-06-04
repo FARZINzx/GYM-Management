@@ -174,6 +174,60 @@ export const getService = async (id: string) => {
     }
 };
 
+export const deleteService = async (id: number) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/services/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || `HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            success: true,
+            data,
+            message: data.message || 'خدمت با موفقیت حذف شد'
+        };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.message || 'خطا در حذف خدمت'
+        };
+    }
+};
+
+export const updateService = async (id: number, serviceData: { name: string; amount: number; icon: string }) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/services/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(serviceData)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || `HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, data };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.message || 'خطا در ویرایش خدمت'
+        };
+    }
+};
+
 
 
 
