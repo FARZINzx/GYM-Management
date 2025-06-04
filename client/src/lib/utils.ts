@@ -40,3 +40,36 @@ export function isoToJalali(isoString : string) {
     const [year, month, day] = datePart.split('-').map(Number);
     return `${year}/${month}/${day}`;
 }
+
+export function convertRoleNameToPersian(roleName: string) {
+    if (!roleName) return '';
+    switch (roleName.toLowerCase()) {
+        case 'manager' : return 'مدیر';
+        case 'trainer' : return 'مربی';
+        case 'receptionist' : return 'منشی';
+        default : return 'ادمین'
+    }
+}
+
+export const formatToPersianCurrency = (amount: number | undefined): string | undefined => {
+    if(!amount) return
+    const toPersianDigits = (num: number): string => {
+        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        return num.toString().replace(/\d/g, (digit) => persianDigits[parseInt(digit)]);
+    };
+
+    // const tomanValue = amount / 10
+    const formattedNumber = new Intl.NumberFormat('en-US').format(amount);
+    const persianNumber = toPersianDigits(parseInt(formattedNumber.replace(/,/g, '')));
+
+    // const unit = 'ریال';
+    if (amount >= 1_000_000_000) {
+        return `${toPersianDigits(Math.floor(amount / 1_000_000_000))} میلیارد `;
+    } else if (amount >= 1_000_000) {
+        return `${toPersianDigits(Math.floor(amount / 1_000_000))} میلیون `;
+    } else if (amount >= 1_000) {
+        return `${toPersianDigits(Math.floor(amount / 1_000))} هزار `;
+    }
+
+    return persianNumber;
+};
