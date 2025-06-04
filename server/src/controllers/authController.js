@@ -3,13 +3,13 @@ import authService from "../services/authService.js";
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    const {token , role} = await authService.login(username, password);
+    const {token , role ,  employee_id} = await authService.login(username, password);
 
     res.status(200).json({
       success: true,
       message: "ورود با موفقیت انجام شد",
       status: 200,
-      data: { token , role },
+      data: { token , role ,  employee_id },
     });
   } catch (error) {
     console.log(error);

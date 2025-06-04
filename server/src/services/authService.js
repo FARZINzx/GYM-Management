@@ -32,7 +32,8 @@ export default {
 
         return {
             token: this.generateToken(user),
-            role: user.role
+            role: user.role,
+            employee_id : user.id
         };
     },
 
