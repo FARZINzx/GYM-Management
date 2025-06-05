@@ -55,15 +55,13 @@ export const ManagerPanelItem: IconButtonProps[] = [
         icon: Users,
         href: '/personnel'
 
-    },
-      {
-        id: 11,
-        label: "حضور/غیاب",
-        icon: ClockFading,
-        href: '/attendance'
-    },
-
-
+    }
+    //   {
+    //     id: 11,
+    //     label: "حضور/غیاب",
+    //     icon: ClockFading,
+    //     href: '/attendance'
+    // },
 ]
 
 export const ReceptionPanelItem: IconButtonProps[] = [
