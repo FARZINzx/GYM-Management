@@ -511,14 +511,14 @@ export default function AddPersonnel() {
                         />
 
                         {/* Authentication Section */}
-                        <div className="pt-4 border-t flex flex-col gap-4 border-[var(--primary)] relative">
+                        <div className="pt-4 border-t flex flex-col gap-6 border-[var(--primary)] relative">
                             <p className="font-medium mb-4 text-[var(--primary)] absolute -top-[12px] bg-secondary right-2 ">اطلاعات احراز هویت</p>
 
                             <FormField
                                 name="username"
                                 control={form.control}
                                 render={({ field }) => (
-                                    <FormItem className="relative w-full">
+                                    <FormItem className="relative w-full mt-4">
                                         <div
                                             className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
                                         >
@@ -582,14 +582,20 @@ export default function AddPersonnel() {
                                 control={form.control}
                                 name="question_id"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="w-full relative">
+                                        <div
+                                            className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
+                                        >
+                                           سوال امنیتی
+                                        </div>
+                                    
                                         <Select
                                             onValueChange={(value) => field.onChange(Number(value))}
                                             disabled={isLoadingQuestions}
                                         >
                                             <FormControl>
                                                 <SelectTrigger className="bg-transparent border-[var(--primary)] text-[var(--primary)] max-w-72 w-full truncate" dir="rtl">
-                                                    <SelectValue placeholder="سوال امنیتی" />
+                                                    <SelectValue/>
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent className="bg-[var(--secondary)] border-[var(--primary)] w-full">
@@ -613,11 +619,15 @@ export default function AddPersonnel() {
                                 control={form.control}
                                 name="question_answer"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="w-full relative pb-2">
+                                         <div
+                                            className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
+                                        >
+                                            پاسخ سوال امنیتی 
+                                        </div>
                                         <FormControl>
                                             <input
-                                                placeholder="پاسخ سوال امنیتی"
-                                                className="bg-transparent w-full border-[var(--primary)] text-[var(--primary)]"
+                                                className="bg-transparent rounded-md p-1 w-full border-[var(--primary)] border text-[var(--primary)]"
                                                 {...field}
                                             />
                                         </FormControl>
