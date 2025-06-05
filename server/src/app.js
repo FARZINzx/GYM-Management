@@ -7,6 +7,7 @@ import personnelRoute from "./routes/personnelRoute.js";
 import roleRoute from "./routes/roleRoute.js";
 import gymServiceRouter from "./routes/gymServiceRoute.js";
 import attendanceRouter from "./routes/attendanceRoute.js";
+import clientRequestRoutes from './routes/clientRequestRoutes.js'
 
 // import trainerRoutes from "./routes/trainerRoutes.js"
 import { errorHandler, notFound } from "./middlewares/errorHandler.js";
@@ -32,6 +33,7 @@ app.use("/api/roles", roleRoute);
 app.use("/api/services", gymServiceRouter);
 app.use("/api/attendance", attendanceRouter);
 // app.use("/trainer" , trainerRoutes)
+app.use('/api/client-requests', clientRequestRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

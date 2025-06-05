@@ -54,3 +54,23 @@ export const verifySecurityAnswer = async (req, res) => {
     });
   }
 };
+
+export const getAllSecurityQuestions = async (req, res, next) => {
+  try {
+    const result = await authService.getAllSecurityQuestions()
+    
+    if (!result.success) {
+      return res.status(result.status || 500).json({
+        success: false,
+        message: result.message
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: result.data
+    });
+  } catch (error) {
+    next(error);
+  }
+};
