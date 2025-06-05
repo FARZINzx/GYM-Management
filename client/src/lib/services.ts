@@ -228,6 +228,20 @@ export const updateService = async (id: number, serviceData: { name: string; amo
     }
 };
 
+export const getSecurityQuestions = async () => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/security-questions`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch security questions');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error : any) {
+    throw new Error(error.message || 'Failed to fetch security questions');
+  }
+};
+
+
 
 
 
