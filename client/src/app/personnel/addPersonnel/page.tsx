@@ -23,7 +23,6 @@ import { isoToJalali } from '@/lib/utils';
 import { getAllRole } from "@/lib/services";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getSecurityQuestions } from "@/lib/services";
-import { useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff } from 'lucide-react';
 
 
@@ -85,7 +84,7 @@ export default function AddPersonnel() {
     const [showPassword, setShowPassword] = useState(false);
 
 
-    const [securityQuestions, setSecurityQuestions] = useState([]);
+    const [securityQuestions, setSecurityQuestions] = useState<{question_id : number , question_text : string}[]>([]);
     const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -208,61 +207,67 @@ export default function AddPersonnel() {
         return () => subscription.unsubscribe();
     }, [form.watch, isEditMode, selectedPersonnel]);
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        setLoading(true);
-        try {
-            const url = isEditMode
-                ? `http://localhost:3001/api/personnel/${selectedPersonnel?.id}`
-                : 'http://localhost:3001/api/personnel/register';
+   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
+    try {
+        const url = isEditMode
+            ? `http://localhost:3001/api/personnel/${selectedPersonnel?.id}`
+            : 'http://localhost:3001/api/personnel/register';
 
-            const method = isEditMode ? 'PUT' : 'POST';
+        const method = isEditMode ? 'PUT' : 'POST';
 
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    first_name: values.name,
-                    last_name: values.familyName,
-                    phone: values.phone,
-                    birth_date: values.birth,
-                    salary: values.salary,
-                    role_id: values.role,
-                    address: values.address,
-                    username : values.username,
-                    password : values.password,
-                    question : values.question_id,
-                    questionAnswer : values.question_answer
+        // Prepare the payload
+        const payload: any = {
+            first_name: values.name,
+            last_name: values.familyName,
+            phone: values.phone,
+            birth_date: values.birth,
+            salary: values.salary,
+            role_id: values.role,
+            address: values.address,
+            username: values.username,
+            question_id: values.question_id,
+            question_answer: values.question_answer
+        };
 
-                }),
+        // Only include password in registration or if changed in edit mode
+        if (!isEditMode || values.password) {
+            payload.password = values.password;
+        }
+
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            toast.success(data.message || (isEditMode ? 'اطلاعات با موفقیت بروزرسانی شد' : 'ثبت نام موفقیت‌آمیز بود'), {
+                style: { background: "#31C440", color: "#fff" }
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
-                toast.success(data.message || (isEditMode ? 'اطلاعات با موفقیت بروزرسانی شد' : 'ثبت نام موفقیت‌آمیز بود'), {
-                    style: { background: "#31C440", color: "#fff" }
-                });
-
-                if (isEditMode) {
-                    clearSelectedPersonnel();
-                    router.push(`/personnel/${selectedPersonnel?.id}`);
-                } else {
-                    form.reset();
-                    router.push("/");
-                }
+            if (isEditMode) {
+                clearSelectedPersonnel();
+                router.push(`/personnel/${selectedPersonnel?.id}`);
             } else {
-                toast.error(data.message || 'خطایی رخ داده است', {
-                    style: { background: "red", color: "#fff" }
-                });
+                form.reset();
+                router.push("/");
             }
-        } catch (error: any) {
-            toast.error(error.message || 'مشکل در ارتباط با سرور', {
+        } else {
+            toast.error(data.message || 'خطایی رخ داده است', {
                 style: { background: "red", color: "#fff" }
             });
-        } finally {
-            setLoading(false);
         }
-    };
+    } catch (error: any) {
+        toast.error(error.message || 'مشکل در ارتباط با سرور', {
+            style: { background: "red", color: "#fff" }
+        });
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number) => void) => {
         const value = e.target.value.replace(/,/g, '');
