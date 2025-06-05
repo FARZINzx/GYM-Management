@@ -227,7 +227,12 @@ export default function AddPersonnel() {
                     birth_date: values.birth,
                     salary: values.salary,
                     role_id: values.role,
-                    address: values.address
+                    address: values.address,
+                    username : values.username,
+                    password : values.password,
+                    question : values.question_id,
+                    questionAnswer : values.question_answer
+
                 }),
             });
 
@@ -594,7 +599,7 @@ export default function AddPersonnel() {
                                             disabled={isLoadingQuestions}
                                         >
                                             <FormControl>
-                                                <SelectTrigger className="bg-transparent border-[var(--primary)] text-[var(--primary)] max-w-72 w-full truncate" dir="rtl">
+                                                <SelectTrigger className="bg-transparent border-[var(--primary)] text-[var(--primary)] max-w-60 w-full truncate" dir="rtl">
                                                     <SelectValue/>
                                                 </SelectTrigger>
                                             </FormControl>
