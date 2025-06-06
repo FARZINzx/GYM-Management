@@ -3,13 +3,13 @@ import authService from "../services/authService.js";
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    const {token , role} = await authService.login(username, password);
+    const {token , role ,  employee_id} = await authService.login(username, password);
 
     res.status(200).json({
       success: true,
       message: "ورود با موفقیت انجام شد",
       status: 200,
-      data: { token , role },
+      data: { token , role ,  employee_id },
     });
   } catch (error) {
     console.log(error);
@@ -52,5 +52,25 @@ export const verifySecurityAnswer = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+export const getAllSecurityQuestions = async (req, res, next) => {
+  try {
+    const result = await authService.getAllSecurityQuestions()
+    
+    if (!result.success) {
+      return res.status(result.status || 500).json({
+        success: false,
+        message: result.message
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: result.data
+    });
+  } catch (error) {
+    next(error);
   }
 };

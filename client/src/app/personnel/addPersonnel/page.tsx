@@ -22,6 +22,10 @@ import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 import { isoToJalali } from '@/lib/utils';
 import { getAllRole } from "@/lib/services";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getSecurityQuestions } from "@/lib/services";
+import { Eye, EyeOff } from 'lucide-react';
+
+
 
 type Role = {
     id: number;
@@ -39,13 +43,13 @@ const formSchema = z.object({
         .length(11, { message: "شماره تلفن باید ۱۱ رقم باشد" })
         .regex(/^09[0-9]{9}$/, { message: "شماره تلفن معتبر نیست" }),
     birth: z.string({ required_error: "تاریخ تولد وارد نشده است" }),
-        // .refine(val => {
-        //     if (!val) return false;
-        //     const date = new DateObject({ date: val, calendar: persian });
-        //     const maxDate = new DateObject({ calendar: persian }).subtract(18, 'years');
-        //     const minDate = new DateObject({ calendar: persian }).subtract(100, 'years');
-        //     return date <= maxDate && date >= minDate;
-        // }, { message: "سن باید بین ۱۸ تا ۱۰۰ سال باشد" }),
+    // .refine(val => {
+    //     if (!val) return false;
+    //     const date = new DateObject({ date: val, calendar: persian });
+    //     const maxDate = new DateObject({ calendar: persian }).subtract(18, 'years');
+    //     const minDate = new DateObject({ calendar: persian }).subtract(100, 'years');
+    //     return date <= maxDate && date >= minDate;
+    // }, { message: "سن باید بین ۱۸ تا ۱۰۰ سال باشد" }),
     salary: z.number({
         required_error: "مقدار حقوق دریافتی وارد نشده است",
         invalid_type_error: "حقوق باید عدد باشد"
@@ -53,8 +57,20 @@ const formSchema = z.object({
         .min(0, { message: "حقوق نمی‌تواند منفی باشد" })
         .max(1000000000, { message: "حقوق نمی‌تواند بیش از ۱ میلیارد ریال باشد" }),
     role: z.number({ required_error: "لطفاً یک نقش را انتخاب کنید" }).optional(),
-    address : z.string({required_error : "آدرس وارد نشده است"})
-        .max(100 , {message : " آدرس باید حداکثر 100 کاراکتر باشد "})
+    address: z.string({ required_error: "آدرس وارد نشده است" })
+        .max(100, { message: " آدرس باید حداکثر 100 کاراکتر باشد " }),
+    username: z.string()
+        .min(3, "نام کاربری باید حداقل ۳ حرف باشد")
+        .max(25, "نام کاربری نمی‌تواند بیش از ۲۵ حرف باشد")
+        .regex(/^[a-z0-9_]+$/i, "نام کاربری فقط می‌تواند شامل حروف انگلیسی، عدد و زیرخط باشد"),
+    password: z.string()
+        .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد")
+        .max(20, "رمز عبور نمی‌تواند بیش از ۲۰ حرف باشد")
+        .refine(val => /[A-Za-z]/.test(val) && /\d/.test(val), {
+            message: "رمز عبور باید شامل حروف و عدد انگلیسی باشد"
+        }),
+    question_id: z.number().min(1, "سوال امنیتی باید انتخاب شود"),
+    question_answer: z.string().min(2, "پاسخ باید حداقل ۲ حرف باشد")
 });
 
 export default function AddPersonnel() {
@@ -65,7 +81,11 @@ export default function AddPersonnel() {
     const isEditMode = searchParams.has('edit');
     const router = useRouter();
     const [roles, setRoles] = useState<Role[] | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
+
+    const [securityQuestions, setSecurityQuestions] = useState<{question_id : number , question_text : string}[]>([]);
+    const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -75,10 +95,38 @@ export default function AddPersonnel() {
             birth: '',
             salary: 0,
             role: undefined,
-            address: ''
+            address: '',
+            username: "",
+            password: "",
+            question_id: 0,
+            question_answer: ""
         },
         mode: "onChange"
     });
+
+    useEffect(() => {
+        const fetchSecurityQuestions = async () => {
+            setIsLoadingQuestions(true);
+            try {
+                const result = await getSecurityQuestions();
+                if (result.success) {
+                    setSecurityQuestions(result.data);
+                } else {
+                    toast.error(result.message || "خطایی در دریافت سوالات امنیتی رخ داده است", {
+                        style: { background: "red", color: "#fff" },
+                    });
+                }
+            } catch (error: any) {
+                toast.error(error.message || "خطایی در دریافت سوالات امنیتی رخ داده است", {
+                    style: { background: "red", color: "#fff" },
+                });
+            } finally {
+                setIsLoadingQuestions(false);
+            }
+        };
+
+        fetchSecurityQuestions();
+    }, []);
 
     useEffect(() => {
         const fetchRoles = async () => {
@@ -112,7 +160,7 @@ export default function AddPersonnel() {
                 birth: isoToJalali(selectedPersonnel.birth_date),
                 salary: selectedPersonnel.salary,
                 role: selectedPersonnel.role_id,
-                address : selectedPersonnel.address
+                address: selectedPersonnel.address
             });
         }
     }, [isEditMode, selectedPersonnel, form]);
@@ -159,56 +207,67 @@ export default function AddPersonnel() {
         return () => subscription.unsubscribe();
     }, [form.watch, isEditMode, selectedPersonnel]);
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        setLoading(true);
-        try {
-            const url = isEditMode
-                ? `http://localhost:3001/api/personnel/${selectedPersonnel?.id}`
-                : 'http://localhost:3001/api/personnel/register';
+   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
+    try {
+        const url = isEditMode
+            ? `http://localhost:3001/api/personnel/${selectedPersonnel?.id}`
+            : 'http://localhost:3001/api/personnel/register';
 
-            const method = isEditMode ? 'PUT' : 'POST';
+        const method = isEditMode ? 'PUT' : 'POST';
 
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    first_name: values.name,
-                    last_name: values.familyName,
-                    phone: values.phone,
-                    birth_date: values.birth,
-                    salary: values.salary,
-                    role_id: values.role,
-                    address : values.address
-                }),
+        // Prepare the payload
+        const payload: any = {
+            first_name: values.name,
+            last_name: values.familyName,
+            phone: values.phone,
+            birth_date: values.birth,
+            salary: values.salary,
+            role_id: values.role,
+            address: values.address,
+            username: values.username,
+            question_id: values.question_id,
+            question_answer: values.question_answer
+        };
+
+        // Only include password in registration or if changed in edit mode
+        if (!isEditMode || values.password) {
+            payload.password = values.password;
+        }
+
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            toast.success(data.message || (isEditMode ? 'اطلاعات با موفقیت بروزرسانی شد' : 'ثبت نام موفقیت‌آمیز بود'), {
+                style: { background: "#31C440", color: "#fff" }
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
-                toast.success(data.message || (isEditMode ? 'اطلاعات با موفقیت بروزرسانی شد' : 'ثبت نام موفقیت‌آمیز بود'), {
-                    style: { background: "#31C440", color: "#fff" }
-                });
-
-                if (isEditMode) {
-                    clearSelectedPersonnel();
-                    router.push(`/personnel/${selectedPersonnel?.id}`);
-                } else {
-                    form.reset();
-                    router.push("/");
-                }
+            if (isEditMode) {
+                clearSelectedPersonnel();
+                router.push(`/personnel/${selectedPersonnel?.id}`);
             } else {
-                toast.error(data.message || 'خطایی رخ داده است', {
-                    style: { background: "red", color: "#fff" }
-                });
+                form.reset();
+                router.push("/");
             }
-        } catch (error : any) {
-            toast.error( error.message || 'مشکل در ارتباط با سرور', {
+        } else {
+            toast.error(data.message || 'خطایی رخ داده است', {
                 style: { background: "red", color: "#fff" }
             });
-        } finally {
-            setLoading(false);
         }
-    };
+    } catch (error: any) {
+        toast.error(error.message || 'مشکل در ارتباط با سرور', {
+            style: { background: "red", color: "#fff" }
+        });
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number) => void) => {
         const value = e.target.value.replace(/,/g, '');
@@ -223,6 +282,9 @@ export default function AddPersonnel() {
             }
         }
     };
+
+      const pass = form.watch("password");
+
 
     return (
         <div className="w-full min-h-screen relative flex justify-center">
@@ -250,7 +312,7 @@ export default function AddPersonnel() {
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}
-                          className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
+                        className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
 
                         {/* Name Field */}
                         <FormField
@@ -334,7 +396,7 @@ export default function AddPersonnel() {
                                     </div>
                                     <FormControl>
                                         <div className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
-                                             style={{ direction: "rtl" }}>
+                                            style={{ direction: "rtl" }}>
                                             <DatePicker
                                                 value={field.value ? new DateObject({
                                                     date: field.value,
@@ -458,10 +520,136 @@ export default function AddPersonnel() {
                             )}
                         />
 
+                        {/* Authentication Section */}
+                        <div className="pt-4 border-t flex flex-col gap-6 border-[var(--primary)] relative">
+                            <p className="font-medium mb-4 text-[var(--primary)] absolute -top-[12px] bg-secondary right-2 ">اطلاعات احراز هویت</p>
+
+                            <FormField
+                                name="username"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem className="relative w-full mt-4">
+                                        <div
+                                            className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
+                                        >
+                                            نام کاربری
+                                        </div>
+                                        <FormControl>
+                                            <input
+                                                {...field}
+                                                type="text"
+                                                dir="ltr"
+                                                maxLength={25}
+                                                className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                                disabled={loading}
+                                            />
+                                        </FormControl>
+                                        <FormMessage dir="rtl" className="text-red-600 text-xs" />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                name="password"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <div className="relative h-full w-full">
+                                                <div
+                                                    className={`absolute -top-[17px] right-2 bg-[var(--secondary)] px-1 text-lg text-midnightNavy`}
+                                                >
+                                                    رمز عبور
+                                                </div>
+                                                <input
+                                                    dir="ltr"
+                                                    type={showPassword ? "text" : "password"}
+                                                    {...field}
+                                                    maxLength={20}
+                                                    className={`h-12 w-full rounded-lg border border-midnightNavy bg-transparent px-3 text-midnightNavy outline-0`}
+                                                    disabled={loading}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className={`absolute inset-y-0 right-3 ${pass != "" ? "flex" : "hidden"
+                                                        } items-center text-[var(--primary)]`}
+                                                    disabled={loading}
+                                                >
+                                                    {showPassword ? (
+                                                        <Eye className="h-5 w-5" />
+                                                    ) : (
+                                                        <EyeOff className="h-5 w-5" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage dir="rtl" className="text-red-600 text-xs" />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="question_id"
+                                render={({ field }) => (
+                                    <FormItem className="w-full relative">
+                                        <div
+                                            className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
+                                        >
+                                           سوال امنیتی
+                                        </div>
+                                    
+                                        <Select
+                                            onValueChange={(value) => field.onChange(Number(value))}
+                                            disabled={isLoadingQuestions}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="bg-transparent border-[var(--primary)] text-[var(--primary)] max-w-60 w-full truncate" dir="rtl">
+                                                    <SelectValue/>
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent className="bg-[var(--secondary)] border-[var(--primary)] w-full">
+                                                {securityQuestions?.map((question) => (
+                                                    <SelectItem
+                                                        key={question.question_id}
+                                                        value={question.question_id.toString()}
+                                                        className="hover:bg-[var(--primary)] hover:text-[var(--secondary)] w-full"
+                                                    >
+                                                        {question.question_text}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage className="text-xs text-red-500" />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="question_answer"
+                                render={({ field }) => (
+                                    <FormItem className="w-full relative pb-2">
+                                         <div
+                                            className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
+                                        >
+                                            پاسخ سوال امنیتی 
+                                        </div>
+                                        <FormControl>
+                                            <input
+                                                className="bg-transparent rounded-md p-1 w-full border-[var(--primary)] border text-[var(--primary)]"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage className="text-xs text-red-500" />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
                         <Button
-                            className={`h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold active:scale-95 duration-500 ${
-                                (isEditMode && !hasChanges) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-90'
-                            }`}
+                            className={`h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold active:scale-95 duration-500 ${(isEditMode && !hasChanges) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-90'
+                                }`}
                             type="submit"
                             disabled={(isEditMode && !hasChanges) || loading}
                         >
