@@ -43,8 +43,25 @@ router.put(
       .trim()
       .notEmpty()
       .withMessage("Address is required"),
+    body("username")
+      .optional()
+      .trim()
+      .isLength({ min: 3, max: 25 })
+      .withMessage("Username must be between 3-25 characters"),
+    body("password")
+      .optional()
+      .isLength({ min: 8, max: 20 })
+      .withMessage("Password must be between 8-20 characters"),
+    body("question_id")
+      .optional()
+      .isInt()
+      .withMessage("Invalid security question ID"),
+    body("question_answer")
+      .optional()
+      .isLength({ min: 2 })
+      .withMessage("Answer must be at least 2 characters")
   ],
-  updatePersonnel,
+  updatePersonnel
 );
 
 router.post(
@@ -71,8 +88,21 @@ router.post(
     body("salary").notEmpty().withMessage("Salary is required"),
     body("role_id").notEmpty().withMessage("Role is required"),
     body("address").notEmpty().withMessage("Address is required"),
+    body("username")
+      .trim()
+      .isLength({ min: 3, max: 25 })
+      .withMessage("Username must be between 3-25 characters"),
+    body("password")
+      .isLength({ min: 8, max: 20 })
+      .withMessage("Password must be between 8-20 characters"),
+    body("question_id")
+      .isInt()
+      .withMessage("Invalid security question ID"),
+    body("question_answer")
+      .isLength({ min: 2 })
+      .withMessage("Answer must be at least 2 characters")
   ],
-  registerPersonnel,
+  registerPersonnel
 );
 
 router.delete("/:id", deletePersonnelController);

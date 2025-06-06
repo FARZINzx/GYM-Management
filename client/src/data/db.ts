@@ -1,7 +1,7 @@
 //interface
 import {IconButtonProps, Coach} from "@/data/type"
 //icon
-import {UserRoundPlus, TrendingUpDown, HandCoins, Anchor, ChartPie, Users} from "lucide-react";
+import {UserRoundPlus, TrendingUpDown, HandCoins, Anchor, ChartPie, Users , ClockFading} from "lucide-react";
 
 export const AdminPanelItem: IconButtonProps[] = [
     {
@@ -56,8 +56,12 @@ export const ManagerPanelItem: IconButtonProps[] = [
         href: '/personnel'
 
     }
-
-
+    //   {
+    //     id: 11,
+    //     label: "حضور/غیاب",
+    //     icon: ClockFading,
+    //     href: '/attendance'
+    // },
 ]
 
 export const ReceptionPanelItem: IconButtonProps[] = [
@@ -79,6 +83,12 @@ export const ReceptionPanelItem: IconButtonProps[] = [
         icon: Users,
         href: '/users'
     },
+    {
+        id: 11,
+        label: "حضور/غیاب",
+        icon: ClockFading,
+        href: '/attendance'
+    },
 
 
 ]
@@ -95,6 +105,12 @@ export const CoachPanelItem: IconButtonProps[] = [
         label: "شاگرد ها",
         icon: Users,
         href: '/'
+    },
+      {
+        id: 11,
+        label: "حضور/غیاب",
+        icon: ClockFading,
+        href: '/attendance'
     },
 
 

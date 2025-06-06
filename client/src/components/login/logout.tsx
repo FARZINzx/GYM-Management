@@ -12,6 +12,8 @@ export default function Logout() {
     const router = useRouter();
     const handleLogout = useCallback(() => {
         deleteCookie("token");
+        deleteCookie("role");
+        deleteCookie("id");
         toast.success('خروج با موفقیت انجام شد', {
             style: {
                 background: "#31C440",

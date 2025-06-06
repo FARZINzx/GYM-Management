@@ -23,6 +23,8 @@ import { setCookie } from "@/action/cookie";
 import toast from "react-hot-toast";
 //icon
 import { Eye, EyeOff } from "lucide-react";
+//zustand
+import { useMeStore } from "@/zustand/stores/me-store";
 
 // Define response type
 type LoginResponse = {
@@ -31,6 +33,7 @@ type LoginResponse = {
   data: {
     token: string;
     role : string
+    employee_id : number
   };
   status: number;
 };
@@ -40,6 +43,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const {setMe} = useMeStore()
 
 const formSchema = z.object({
   username: z
@@ -70,7 +74,7 @@ const formSchema = z.object({
       setLoading(true);
       setError(null);
 
-      const response = await fetch("http://localhost:3001/api/auth/login", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/login`, {
         method: "POST",
         body: JSON.stringify(values),
         headers: {
@@ -87,6 +91,11 @@ const formSchema = z.object({
       if (data.success) {
         setCookie("token", data.data.token);
         setCookie('role' , data.data.role)
+        setCookie('id' , data.data.employee_id.toString())
+        setMe({
+          id :  data.data.employee_id,
+          role :  data.data.role
+        })
         toast.success(data.message, {
           style: {
             background: "#31C440",

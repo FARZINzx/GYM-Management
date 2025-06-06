@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import {query} from "./../config/db.js";
+import { query } from "./../config/db.js";
 import env from "./../config/env.js";
 
 export default {
     async login(username, password) {
 
-        const {rows} = await query(
+        const { rows } = await query(
             `
                 SELECT ea.id,
                        ea.password_hash,
@@ -30,14 +30,19 @@ export default {
 
         if (!validPassword) throw new Error("نام کاربری یا رمز عبور اشتباه است.");
 
+        await query(
+            `INSERT INTO employee_login(employee_id) VALUES ($1)`,[user.id]
+        )
+
         return {
             token: this.generateToken(user),
-            role: user.role
+            role: user.role,
+            employee_id: user.id
         };
     },
 
     generateToken(user) {
-        return jwt.sign({id: user.id, role: user.role}, env.JWT.SECRET, {
+        return jwt.sign({ id: user.id, role: user.role }, env.JWT.SECRET, {
             expiresIn: env.JWT.EXPIRES_IN,
         });
     },
@@ -77,5 +82,26 @@ export default {
         return password_hash; // Or reset token instead
     },
 
+    async getAllSecurityQuestions() {
+        try {
+            const { rows } = await query(
+                `SELECT question_id, question_text 
+         FROM security_questions 
+         ORDER BY question_id ASC`
+            );
 
-};
+            return {
+                success: true,
+                data: rows,
+                status: 200
+            };
+        } catch (error) {
+            console.error("Error fetching security questions:", error);
+            return {
+                success: false,
+                message: "خطا در دریافت سوالات امنیتی",
+                status: 500
+            };
+        }
+    }
+}
