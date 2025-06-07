@@ -75,7 +75,7 @@ export const ReceptionPanelItem: IconButtonProps[] = [
         id: 7,
         label: "درخواست مربی",
         icon: ChartPie,
-        href: '/'
+        href: '/trainers/request'
     },
     {
         id: 6,
