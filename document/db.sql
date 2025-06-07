@@ -253,3 +253,47 @@ VALUES ((SELECT id FROM employee WHERE first_name = 'parham' AND last_name = 'sa
         (SELECT question_id FROM security_questions WHERE question_text = 'اولین فیلم مورد علاقه شما چه بود؟'),
         '$2b$10$HVRwrGS/nJ.4zqW1.1PlheMqAPM1/NquEzGorNrBjtBoRkmMVHh3y');
 
+
+
+        -- 16. Service types table (unchanged)
+CREATE TABLE service_types (
+    service_id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT
+);
+
+-- Insert basic service types (unchanged)
+INSERT INTO service_types (name, description) VALUES 
+('Bodybuilding', 'Strength training and muscle building'),
+('Aerobic', 'Cardiovascular fitness training'),
+('Nutrition', 'Diet and meal planning');
+
+-- 17. Client service requests (updated for multiple services)
+CREATE TABLE client_service_requests (
+    request_id SERIAL PRIMARY KEY,
+    client_phone VARCHAR(11) NOT NULL,
+    created_by INTEGER NOT NULL REFERENCES employee(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected')),
+    accepted_by INTEGER REFERENCES employee(id),
+    accepted_at TIMESTAMPTZ,
+    notes TEXT
+);
+
+-- New table for request-service relationships
+CREATE TABLE request_services (
+    request_id INTEGER NOT NULL REFERENCES client_service_requests(request_id) ON DELETE CASCADE,
+    service_id INTEGER NOT NULL REFERENCES service_types(service_id),
+    PRIMARY KEY (request_id, service_id)
+);
+
+-- 18. Trainer-client assignments (updated for multiple services)
+CREATE TABLE trainer_assignments (
+    assignment_id SERIAL PRIMARY KEY,
+    trainer_id INTEGER NOT NULL REFERENCES employee(id),
+    client_id INTEGER NOT NULL REFERENCES users(id),
+    request_id INTEGER NOT NULL REFERENCES client_service_requests(request_id),
+    assigned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
+);
+

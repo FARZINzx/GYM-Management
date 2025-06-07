@@ -15,7 +15,8 @@ router.post(
     '/',
     [
         body('client_phone').notEmpty().withMessage('Client phone is required'),
-        body('service_id').isInt().withMessage('Service ID must be an integer'),
+        body('services').isArray({ min: 1 }).withMessage('At least one service must be selected'),
+        body('services.*').isInt().withMessage('Service ID must be an integer'),
         body('notes').optional().isString()
     ],
     createRequestController

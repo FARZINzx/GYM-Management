@@ -9,12 +9,12 @@ import { sendResponse } from '../middlewares/responseHandler.js';
 
 export async function createRequestController(req, res, next) {
     try {
-        const { client_phone, service_id, notes } = req.body;
+        const { client_phone, services, notes } = req.body;
         const created_by = req.user.id;
 
         const result = await createRequestService(
             client_phone, 
-            service_id, 
+            services, 
             created_by, 
             notes
         );

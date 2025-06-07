@@ -53,7 +53,7 @@ const PageHeader = () => {
 const FilterHeader = () => {
   const router = useRouter();
 
-  const handleBack = useCallback(() => router.back(), [router]);
+  const handleBack = useCallback(() => router.push('/'), [router]);
 
   return (
       <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">

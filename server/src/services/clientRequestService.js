@@ -1,23 +1,38 @@
 import { query, getClient } from '../config/db.js';
 
-export async function createRequestService(client_phone, service_id, created_by, notes) {
+export async function createRequestService(client_phone, services, created_by, notes) {
     const client = await getClient();
     try {
         await client.query('BEGIN');
 
-        const { rows } = await client.query(
+        // Create the main request
+        const requestResult = await client.query(
             `INSERT INTO client_service_requests 
-             (client_phone, service_id, created_by, notes)
-             VALUES ($1, $2, $3, $4) RETURNING *`,
-            [client_phone, service_id, created_by, notes]
+             (client_phone, created_by, notes)
+             VALUES ($1, $2, $3) RETURNING *`,
+            [client_phone, created_by, notes]
         );
+        
+        const request_id = requestResult.rows[0].request_id;
+
+        // Insert all selected services
+        for (const service_id of services) {
+            await client.query(
+                `INSERT INTO request_services (request_id, service_id)
+                 VALUES ($1, $2)`,
+                [request_id, service_id]
+            );
+        }
 
         await client.query('COMMIT');
+        
+        // Get full request data with services
+        const fullRequest = await getRequestDetails(request_id);
         
         return {
             success: true,
             message: 'Request created successfully',
-            data: rows[0],
+            data: fullRequest,
             status: 201
         };
     } catch (error) {
@@ -32,21 +47,60 @@ export async function createRequestService(client_phone, service_id, created_by,
     }
 }
 
+async function getRequestDetails(request_id) {
+    const requestResult = await query(
+        `SELECT r.*, 
+         e.first_name as created_by_name, e.last_name as created_by_last_name,
+         u.first_name as client_name, u.last_name as client_last_name
+         FROM client_service_requests r
+         JOIN employee e ON r.created_by = e.id
+         LEFT JOIN users u ON r.client_phone = u.phone
+         WHERE r.request_id = $1`,
+        [request_id]
+    );
+    
+    const servicesResult = await query(
+        `SELECT s.* FROM request_services rs
+         JOIN service_types s ON rs.service_id = s.service_id
+         WHERE rs.request_id = $1`,
+        [request_id]
+    );
+    
+    return {
+        ...requestResult.rows[0],
+        services: servicesResult.rows
+    };
+}
+
 export async function getAllRequestsService() {
     try {
         const { rows } = await query(
-            `SELECT r.*, s.name as service_name, 
-             e.first_name as created_by_name, e.last_name as created_by_last_name
+            `SELECT r.*, 
+             e.first_name as created_by_name, e.last_name as created_by_last_name,
+             u.first_name as client_name, u.last_name as client_last_name
              FROM client_service_requests r
-             JOIN service_types s ON r.service_id = s.service_id
              JOIN employee e ON r.created_by = e.id
+             LEFT JOIN users u ON r.client_phone = u.phone
              ORDER BY r.created_at DESC`
+        );
+
+        // Get services for each request
+        const requestsWithServices = await Promise.all(
+            rows.map(async request => {
+                const services = await query(
+                    `SELECT s.* FROM request_services rs
+                     JOIN service_types s ON rs.service_id = s.service_id
+                     WHERE rs.request_id = $1`,
+                    [request.request_id]
+                );
+                return { ...request, services: services.rows };
+            })
         );
 
         return {
             success: true,
             message: 'Requests retrieved successfully',
-            data: rows,
+            data: requestsWithServices,
             status: 200
         };
     } catch (error) {
@@ -61,21 +115,33 @@ export async function getAllRequestsService() {
 export async function getPendingRequestsService() {
     try {
         const { rows } = await query(
-            `SELECT r.*, s.name as service_name, 
+            `SELECT r.*, 
              e.first_name as created_by_name, e.last_name as created_by_last_name,
              u.first_name as client_name, u.last_name as client_last_name
              FROM client_service_requests r
-             JOIN service_types s ON r.service_id = s.service_id
              JOIN employee e ON r.created_by = e.id
              LEFT JOIN users u ON r.client_phone = u.phone
              WHERE r.status = 'pending'
              ORDER BY r.created_at DESC`
         );
 
+        // Get services for each request
+        const requestsWithServices = await Promise.all(
+            rows.map(async request => {
+                const services = await query(
+                    `SELECT s.* FROM request_services rs
+                     JOIN service_types s ON rs.service_id = s.service_id
+                     WHERE rs.request_id = $1`,
+                    [request.request_id]
+                );
+                return { ...request, services: services.rows };
+            })
+        );
+
         return {
             success: true,
             message: 'Pending requests retrieved successfully',
-            data: rows,
+            data: requestsWithServices,
             status: 200
         };
     } catch (error) {
@@ -117,7 +183,6 @@ export async function processRequestService(request_id, status, trainer_id) {
         // If accepted, create assignment
         if (status === 'accepted') {
             const clientPhone = updateResult.rows[0].client_phone;
-            const serviceId = updateResult.rows[0].service_id;
 
             // Find client by phone
             const clientRes = await client.query(
@@ -128,19 +193,22 @@ export async function processRequestService(request_id, status, trainer_id) {
             if (clientRes.rows.length > 0) {
                 await client.query(
                     `INSERT INTO trainer_assignments 
-                     (trainer_id, client_id, service_id)
+                     (trainer_id, client_id, request_id)
                      VALUES ($1, $2, $3)`,
-                    [trainer_id, clientRes.rows[0].id, serviceId]
+                    [trainer_id, clientRes.rows[0].id, request_id]
                 );
             }
         }
 
         await client.query('COMMIT');
 
+        // Get full updated request data
+        const fullRequest = await getRequestDetails(request_id);
+
         return {
             success: true,
             message: `Request ${status} successfully`,
-            data: updateResult.rows[0],
+            data: fullRequest,
             status: 200
         };
     } catch (error) {
@@ -158,19 +226,32 @@ export async function processRequestService(request_id, status, trainer_id) {
 export async function getTrainerClientsService(trainer_id) {
     try {
         const { rows } = await query(
-            `SELECT u.*, s.name as service_name, a.assigned_at
+            `SELECT u.*, r.request_id, a.assigned_at
              FROM users u
              JOIN trainer_assignments a ON u.id = a.client_id
-             JOIN service_types s ON a.service_id = s.service_id
+             JOIN client_service_requests r ON a.request_id = r.request_id
              WHERE a.trainer_id = $1 AND a.is_active = true
              ORDER BY a.assigned_at DESC`,
             [trainer_id]
         );
 
+        // Get services for each assignment
+        const clientsWithServices = await Promise.all(
+            rows.map(async client => {
+                const services = await query(
+                    `SELECT s.* FROM request_services rs
+                     JOIN service_types s ON rs.service_id = s.service_id
+                     WHERE rs.request_id = $1`,
+                    [client.request_id]
+                );
+                return { ...client, services: services.rows };
+            })
+        );
+
         return {
             success: true,
             message: 'Trainer clients retrieved successfully',
-            data: rows,
+            data: clientsWithServices,
             status: 200
         };
     } catch (error) {
