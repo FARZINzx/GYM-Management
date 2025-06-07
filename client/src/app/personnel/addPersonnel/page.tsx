@@ -42,14 +42,17 @@ const formSchema = z.object({
     phone: z.string({ required_error: "شماره تلفن وارد نشده است" })
         .length(11, { message: "شماره تلفن باید ۱۱ رقم باشد" })
         .regex(/^09[0-9]{9}$/, { message: "شماره تلفن معتبر نیست" }),
-    birth: z.string({ required_error: "تاریخ تولد وارد نشده است" }),
-    // .refine(val => {
-    //     if (!val) return false;
-    //     const date = new DateObject({ date: val, calendar: persian });
-    //     const maxDate = new DateObject({ calendar: persian }).subtract(18, 'years');
-    //     const minDate = new DateObject({ calendar: persian }).subtract(100, 'years');
-    //     return date <= maxDate && date >= minDate;
-    // }, { message: "سن باید بین ۱۸ تا ۱۰۰ سال باشد" }),
+    birth: z
+        .string({ required_error: "تاریخ تولد وارد نشده است" })
+        .refine(val => {
+            if (!val) return false;
+            const date = new DateObject({ date: val, calendar: persian , locale: persian_fa });
+            const year = date.year;
+
+            return year >= 1315 && year <= 1395;
+        }, {
+            message: "سال تولد باید بین ۱۳۱۵ تا ۱۳۹۵ باشد"
+        }),
     salary: z.number({
         required_error: "مقدار حقوق دریافتی وارد نشده است",
         invalid_type_error: "حقوق باید عدد باشد"
@@ -389,20 +392,24 @@ export default function AddPersonnel() {
                         <FormField
                             name="birth"
                             control={form.control}
-                            render={({ field }) => (
+                            render={({field}) => (
                                 <FormItem className="relative w-full">
-                                    <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
+                                    <div
+                                        className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
                                         تاریخ تولد
                                     </div>
                                     <FormControl>
-                                        <div className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
-                                            style={{ direction: "rtl" }}>
+                                        <div
+                                            className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                            style={{direction: "rtl"}}>
                                             <DatePicker
-                                                value={field.value ? new DateObject({
-                                                    date: field.value,
-                                                    calendar: persian,
-                                                    locale: persian_fa
-                                                }) : ""}
+                                                value={
+                                                    field.value
+                                                        ? new DateObject({ date: field.value, calendar: persian, locale: persian_fa })
+                                                        : ""
+                                                }
+
+                                                currentDate={new DateObject({ year: 1395, month: 1, day: 1, calendar: persian })}
                                                 onChange={(date) => {
                                                     if (date?.isValid) {
                                                         const formatted = date.format("YYYY/MM/DD");
@@ -415,13 +422,19 @@ export default function AddPersonnel() {
                                                 calendar={persian}
                                                 locale={persian_fa}
                                                 calendarPosition="bottom-right"
-                                                style={{ border: 0, outline: 0 }}
+                                                style={{border: 0, outline: 0}}
                                                 className="rmdp-mobile yellow bg-dark"
+                                                maxDate={new DateObject({
+                                                    year: 1395,
+                                                    month: 12,
+                                                    day: 29,
+                                                    calendar: persian
+                                                })}
                                                 minDate={new DateObject({
-                                                    calendar: persian,
-                                                    date: new DateObject({ calendar: persian })
-                                                        .subtract(100, "years")
-                                                        .subtract(1, "day")
+                                                    year: 1315,
+                                                    month: 1,
+                                                    day: 1,
+                                                    calendar: persian
                                                 })}
                                                 animations={[
                                                     opacity(),
@@ -433,7 +446,7 @@ export default function AddPersonnel() {
                                             />
                                         </div>
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600" />
+                                    <FormMessage dir="rtl" className="text-red-600"/>
                                 </FormItem>
                             )}
                         />
