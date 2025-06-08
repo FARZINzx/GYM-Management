@@ -49,7 +49,12 @@ export default function Attendance() {
                const data = await response.json();
                setAttendance(data.data);
           } catch (error: any) {
-               toast.error(error.message);
+               toast.error(error.message || 'خطایی رخ داده است' , {
+                    style: {
+                         background: "red",
+                         color: "#fff",
+                    }
+               });
           } finally {
                setIsLoading(false);
           }
@@ -70,7 +75,13 @@ export default function Attendance() {
                     });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.message);
-                    toast.success('ورود با موفقیت ثبت شد');
+                    toast.success('ورود با موفقیت ثبت شد', {
+                         style: {
+                              background: "#31C440",
+                              color: "#fff",
+                         },
+                         duration : 2000
+                    });
                } else if (attendance && !attendance.check_out_time) {
                     // Check out
                     const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/attendance/check-out`, {
@@ -82,7 +93,13 @@ export default function Attendance() {
                     });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.message);
-                    toast.success('خروج با موفقیت ثبت شد');
+                    toast.success('خروج با موفقیت ثبت شد',{
+                         style: {
+                              background: "#31C440",
+                              color: "#fff",
+                         },
+                         duration : 2000
+                    });
                } else {
                     toast('شما امروز قبلاً ورود و خروج خود را ثبت کرده‌اید');
                     return;
@@ -90,7 +107,12 @@ export default function Attendance() {
 
                await fetchTodayAttendance();
           } catch (error: any) {
-               toast.error(error.message);
+               toast.error(error.message || 'خطایی رخ داده است' , {
+                    style: {
+                         background: "red",
+                         color: "#fff",
+                    }
+               });
           } finally {
                setIsChecking(false);
           }

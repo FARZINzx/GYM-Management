@@ -3,17 +3,20 @@ import authService from "../services/authService.js";
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    const {token , role ,  employee_id} = await authService.login(username, password);
+    const { token, role, employee_id } = await authService.login(
+      username,
+      password,
+    );
 
     res.status(200).json({
       success: true,
       message: "ورود با موفقیت انجام شد",
       status: 200,
-      data: { token , role ,  employee_id },
+      data: { token, role, employee_id },
     });
   } catch (error) {
     console.log(error);
-    
+
     res.status(401).json({
       success: false,
       message: error.message,
@@ -28,7 +31,7 @@ export const getSecurityQuestion = async (req, res) => {
     const question = await authService.getSecurityQuestion(username);
     res.status(200).json({
       success: true,
-      data:{question},
+      data: { question },
     });
   } catch (error) {
     res.status(404).json({
@@ -41,11 +44,11 @@ export const getSecurityQuestion = async (req, res) => {
 export const verifySecurityAnswer = async (req, res) => {
   try {
     const { username, answer } = req.body;
-    const password = await authService.verifySecurityAnswer(username, answer);
+    const id = await authService.verifySecurityAnswer(username, answer);
     res.status(200).json({
       success: true,
       message: "پاسخ صحیح است",
-      data:{password},
+      data: { id },
     });
   } catch (error) {
     res.status(400).json({
@@ -57,20 +60,44 @@ export const verifySecurityAnswer = async (req, res) => {
 
 export const getAllSecurityQuestions = async (req, res, next) => {
   try {
-    const result = await authService.getAllSecurityQuestions()
-    
+    const result = await authService.getAllSecurityQuestions();
+
     if (!result.success) {
       return res.status(result.status || 500).json({
         success: false,
-        message: result.message
+        message: result.message,
       });
     }
 
     res.status(200).json({
       success: true,
-      data: result.data
+      data: result.data,
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 8) {
+      throw new Error("رمز عبور باید حداقل 8 کاراکتر باشد.");
+    }
+
+    const result = await authService.resetPassword(userId, newPassword);
+
+    res.status(200).json({
+      success: true,
+      message: "رمز عبور با موفقیت تغییر یافت",
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };

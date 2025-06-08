@@ -28,9 +28,8 @@ export async function registerService(
   username,
   password,
   question_id,
-  question_answer
+  question_answer,
 ) {
-
   const client = await getClient();
   try {
     await client.query("BEGIN");
@@ -44,7 +43,7 @@ export async function registerService(
 
     const employeeId = employeeRes.rows[0].id;
 
-        await client.query(
+    await client.query(
       `INSERT INTO employee_auth (id, username, password_hash, question_id, question_answer_hash)
        VALUES ($1, $2, $3, $4, $5)`,
       [
@@ -52,8 +51,8 @@ export async function registerService(
         username,
         password, // Note: This should be hashed before passing to the function
         question_id,
-        question_answer // Note: This should be hashed before passing to the function
-      ]
+        question_answer, // Note: This should be hashed before passing to the function
+      ],
     );
 
     await client.query(
@@ -93,11 +92,14 @@ export async function getPersonnel(id) {
       `   SELECT 
                 e.id, e.first_name, e.last_name, e.birth_date, 
                 e.created_at, e.is_active, ec.address, ec.phone, 
-                es.amount as salary, r.role_name, r.role_id
+                es.amount as salary, r.role_name, r.role_id,
+                ea.username,ea.password_hash,ea.question_id,
+                ea.question_answer_hash
             FROM employee e 
             JOIN employee_salary es ON es.employee_id = e.id
             JOIN employee_contacts ec ON ec.employee_id = e.id
             JOIN roles r ON e.role_id = r.role_id
+            JOIN employee_auth ea ON ea.id = e.id
             WHERE e.id = $1`,
       [id],
     );
@@ -130,89 +132,6 @@ export async function getPersonnel(id) {
   }
 }
 
-// export async function updatePersonnelService(
-//  id,
-//   first_name,
-//   last_name,
-//   phone,
-//   address,
-//   role_id,
-//   birth_date,
-//   salary,
-//   username,
-//   password,
-//   question_id,
-//   question_answer
-// ) {
-//   const client = await getClient();
-//   try {
-//     await client.query("BEGIN");
-
-//     // 1. Update employee table
-//     const employeeRes = await client.query(
-//       `
-//             UPDATE employee 
-//             SET 
-//                 first_name = $1,
-//                 last_name = $2,
-//                 birth_date = $3,
-//                 role_id = $4,
-//                 updated_at = NOW()
-//             WHERE id = $5
-//             RETURNING id
-//         `,
-//       [first_name, last_name, birth_date, role_id, id],
-//     );
-
-//     if (employeeRes.rowCount === 0) {
-//       throw new Error("کاربر یافت نشد");
-//     }
-
-//     // 2. Update contact information
-//     await client.query(
-//       `
-//             UPDATE employee_contacts
-//             SET 
-//                 phone = $1,
-//                 address = $2
-//             WHERE employee_id = $3
-//         `,
-//       [phone, address, id],
-//     );
-
-//     // 3. Update salary information
-//     await client.query(
-//       `
-//             UPDATE employee_salary
-//             SET 
-//                 amount = $1
-//             WHERE employee_id = $2
-//         `,
-//       [salary, id],
-//     );
-
-//     await client.query("COMMIT");
-
-//     return {
-//       success: true,
-//       message: "اطلاعات با موفقیت بروزرسانی شد",
-//       data: { id },
-//       status: 200,
-//     };
-//   } catch (e) {
-//     await client.query("ROLLBACK");
-//     console.error("Update error:", e);
-//     return {
-//       success: false,
-//       error: e.message,
-//       status: 500,
-//     };
-//   } finally {
-//     client.release();
-//   }
-// }
-
-
 export async function updatePersonnelService(
   id,
   first_name,
@@ -225,7 +144,7 @@ export async function updatePersonnelService(
   username,
   password,
   question_id,
-  question_answer
+  question_answer,
 ) {
   const client = await getClient();
   try {
@@ -242,7 +161,7 @@ export async function updatePersonnelService(
          updated_at = NOW()
        WHERE id = $5
        RETURNING id`,
-      [first_name, last_name, birth_date, role_id, id]
+      [first_name, last_name, birth_date, role_id, id],
     );
 
     if (employeeRes.rowCount === 0) {
@@ -287,7 +206,7 @@ export async function updatePersonnelService(
          phone = $1,
          address = $2
        WHERE employee_id = $3`,
-      [phone, address, id]
+      [phone, address, id],
     );
 
     // 4. Update salary information
@@ -296,7 +215,7 @@ export async function updatePersonnelService(
        SET 
          amount = $1
        WHERE employee_id = $2`,
-      [salary, id]
+      [salary, id],
     );
 
     await client.query("COMMIT");

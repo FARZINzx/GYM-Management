@@ -41,7 +41,7 @@ export function isoToJalali(isoString : string) {
     return `${year}/${month}/${day}`;
 }
 
-export function convertRoleNameToPersian(roleName: string) {
+export function convertRoleNameToPersian(roleName: string | undefined) {
     if (!roleName) return '';
     switch (roleName.toLowerCase()) {
         case 'manager' : return 'مدیر';

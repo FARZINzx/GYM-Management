@@ -4,7 +4,6 @@ import React, {useEffect, useMemo, useState} from "react";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {useRouter} from "next/navigation";
 import toast from "react-hot-toast";
 // import {toggleFullScreen} from "@/lib/utils";
 import {formatToPersianCurrency} from "@/lib/utils";
@@ -19,7 +18,7 @@ import {getAllServices} from "@/lib/services";
 //type
 import {GymService} from '@/data/type'
 //icon
-import {Dumbbell, Bike, Beef, HeartPulse, UserPen, UserRoundX} from 'lucide-react';
+import {Dumbbell, Bike, Beef, HeartPulse, Pencil, Trash2} from 'lucide-react';
 
 // Define validation schema
 const serviceSchema = z.object({
@@ -92,7 +91,6 @@ const IconPicker = ({selectedIcon, onIconSelect}: {
 
 
 export default function Services() {
-    const router = useRouter();
     const [services, setServices] = useState<GymService[] | null>(null)
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [showConfirm, setShowConfirm] = useState(false);
@@ -242,6 +240,7 @@ export default function Services() {
         }
     };
 
+    const isFormEmpty = !watch('name')?.trim() || !watch('icon')?.trim() || watch('cost') === 0;
 
     return (
         <>
@@ -250,7 +249,7 @@ export default function Services() {
                 // onClick={() => toggleFullScreen()}
             >
                 <div className="max-w-[430px] mx-auto relative">
-                    <Header type="filter"/>
+                    <Header type="page"/>
                     <div className="flex flex-col gap-6 mx-auto px-6">
                         <h2 className="text-3xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
                             خدمات
@@ -328,8 +327,9 @@ export default function Services() {
                                     <div className='flex justify-end gap-3 pt-2'>
                                         <button
                                             type='button'
-                                            onClick={() => router.push('/')}
-                                            className='w-24 h-9 font-medium rounded-lg border border-[var(--primary)] text-[var(--primary)] active:scale-95 duration-300'
+                                            onClick={() => reset()}
+                                            disabled={!selectedService && isFormEmpty}
+                                            className='w-24 h-9 disabled:opacity-50 disabled:active:scale-100  font-medium rounded-lg border border-[var(--primary)] text-[var(--primary)] active:scale-95 duration-300'
                                         >
                                             انصراف
                                         </button>
@@ -393,7 +393,7 @@ export default function Services() {
                                                                 <button
                                                                     onClick={() => setSelectedService(service)}
                                                                     className="w-full flex items-center justify-center rounded-br-md py-2 bg-[var(--secondary)] text-sm gap-1 border-l font-semibold text-[#0D141A] active:scale-95 duration-300">
-                                                                    <UserPen className="size-5"/>
+                                                                    <Pencil className="size-5"/>
                                                                     <span>ویرایش خدمت</span>
                                                                 </button>
                                                             )
@@ -406,8 +406,8 @@ export default function Services() {
                                                                 setSelectedServiceId(service.service_id)
                                                             }}
                                                             className="w-full flex items-center justify-center rounded-bl-md  py-2  bg-[var(--secondary)] text-sm gap-1 text-[#CD0505] font-semibold active:scale-95 duration-300">
-                                                            <UserRoundX className="size-5"/>
-                                                            <span>حذف کاربر</span>
+                                                            <Trash2 className="size-5"/>
+                                                            <span>حذف خدمت</span>
                                                         </button>
                                                     </div>
                                                 </div>
