@@ -1,7 +1,7 @@
 //interface
 import {IconButtonProps, Coach} from "@/data/type"
 //icon
-import {UserRoundPlus, TrendingUpDown, HandCoins, Anchor, ChartPie, Users , ClockFading} from "lucide-react";
+import {UserRoundPlus, TrendingUpDown, ChartPie, Users , ClockFading} from "lucide-react";
 
 export const AdminPanelItem: IconButtonProps[] = [
     {
@@ -25,24 +25,24 @@ export const ManagerPanelItem: IconButtonProps[] = [
         icon: TrendingUpDown,
         href: '/services'
     },
-    {
-        id: 3,
-        label: "پرداخت کارمزد",
-        icon: HandCoins,
-        href: '/register'
-    },
-    {
-        id: 4,
-        label: "مربیان",
-        icon: Anchor,
-        href: '/trainers'
-    },
-    {
-        id: 5,
-        label: "گزارش گیری",
-        icon: ChartPie,
-        href: '/register'
-    },
+    // {
+    //     id: 3,
+    //     label: "پرداخت کارمزد",
+    //     icon: HandCoins,
+    //     href: '/register'
+    // },
+    // {
+    //     id: 4,
+    //     label: "مربیان",
+    //     icon: Anchor,
+    //     href: '/trainers'
+    // },
+    // {
+    //     id: 5,
+    //     label: "گزارش گیری",
+    //     icon: ChartPie,
+    //     href: '/register'
+    // },
     {
         id: 6,
         label: "کاربران",
@@ -55,13 +55,13 @@ export const ManagerPanelItem: IconButtonProps[] = [
         icon: Users,
         href: '/personnel'
 
-    }
-    //   {
-    //     id: 11,
-    //     label: "حضور/غیاب",
-    //     icon: ClockFading,
-    //     href: '/attendance'
-    // },
+    },
+      {
+        id: 11,
+        label: "حضور/غیاب",
+        icon: ClockFading,
+        href: '/attendance'
+    },
 ]
 
 export const ReceptionPanelItem: IconButtonProps[] = [
