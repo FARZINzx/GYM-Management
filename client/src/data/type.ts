@@ -24,7 +24,7 @@ export interface User {
      weight_kg : number
      height_cm : number
      bmi : string
-     is_fee_paid: string,
+     is_fee_paid: boolean,
      trainer_id : any,
      created_at : string
      birth_date : string

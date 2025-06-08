@@ -9,7 +9,7 @@ import {User} from "@/data/type";
 import {getUser} from "@/lib/services";
 import {useSelectedUserStore} from "@/zustand/stores/selected-user-store";
 import {convertToJalali} from '@/lib/utils'
-import {UserPen, UserRoundX} from "lucide-react";
+import {UserPen, UserRoundX , CreditCard, CircleDollarSign} from "lucide-react";
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog'
 
 
@@ -46,30 +46,62 @@ export default function UserProfile() {
     const {setSelectedUser} = useSelectedUserStore()
     const [showConfirm, setShowConfirm] = useState(false);
 
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            setIsLoading(true);
-            try {
-                const result = await getUser(id);
-                if (result.success) {
-                    setUser(result.data);
-                } else {
-                    toast.error(result.message || "خطایی رخ داده است", {
-                        style: {background: "red", color: "#fff"},
-                    });
-                }
-            } catch (e: any) {
-                toast.error(e.message || "خطایی رخ داده است", {
+    const fetchUserData = async () => {
+        setIsLoading(true);
+        try {
+            const result = await getUser(id);
+            if (result.success) {
+                setUser(result.data);
+            } else {
+                toast.error(result.message || "خطایی رخ داده است", {
                     style: {background: "red", color: "#fff"},
                 });
-            } finally {
-                setIsLoading(false);
             }
-        };
-
+        } catch (e: any) {
+            toast.error(e.message || "خطایی رخ داده است", {
+                style: {background: "red", color: "#fff"},
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    useEffect(() => {
         fetchUserData();
     }, [id]);
+
+    const togglePaymentStatus = async (user: User | null) => {
+        if (!user) return;
+
+        try {
+            const response = await fetch(`http://localhost:3001/api/user/${user.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    is_fee_paid: !user.is_fee_paid
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success( 'وضعیت پرداخت با موفقیت تغییر کرد', {
+                    style: {background: "#31C440", color: "#fff"}
+                });
+                // Update local state
+                setUser(prev => prev ? {...prev, is_fee_paid: !prev.is_fee_paid} : null);
+            } else {
+                toast.error(data.message || 'در تغییر وضعیت پرداخت مشکلی پیش آمد', {
+                    style: {background: "red", color: "#fff"}
+                });
+            }
+        } catch (error : any) {
+            toast.error(error.message || 'خطا در ارتباط با سرور', {
+                style: {background: "red", color: "#fff"}
+            });
+        }
+    };
 
     const handleEdit = (user: User | null) => {
         if (user) {
@@ -98,8 +130,8 @@ export default function UserProfile() {
                     style: {background: "red", color: "#fff"}
                 });
             }
-        } catch (error) {
-            toast.error('خطا در عملیات', {
+        } catch (error : any) {
+            toast.error(error.message || 'خطا در عملیات', {
                 style: {background: "red", color: "#fff"}
             });
         }
@@ -158,7 +190,19 @@ export default function UserProfile() {
                                         user?.is_fee_paid ? "text-[#15A712]" : "text-[#CD0505]"
                                     )}
                                 >
-                                    {user?.is_fee_paid ? "پرداخت شده" : "پرداخت نشده"}
+                                    <div className="flex items-center justify-center gap-2">
+                                        {user?.is_fee_paid ? "پرداخت شده" : "پرداخت نشده"}
+                                        <button
+                                            onClick={async () => await togglePaymentStatus(user)}
+                                            className="p-1 rounded-full hover:bg-gray-200 transition-colors"
+                                        >
+                                            {user?.is_fee_paid ? (
+                                                <CreditCard className="size-5" />
+                                            ) : (
+                                                <CircleDollarSign className="size-5" />
+                                            )}
+                                        </button>
+                                    </div>
                                 </GridRow>
 
                                 <GridRow label="مربی :" isLoading={isLoading}>
