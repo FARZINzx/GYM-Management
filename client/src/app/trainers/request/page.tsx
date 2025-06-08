@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import {useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -86,8 +86,8 @@ export default function RequestTrainer() {
                     style: { background: "red", color: "#fff" }
                 });
             }
-        } catch (error) {
-            toast.error('مشکل در ارتباط با سرور', {
+        } catch (error : any) {
+            toast.error(error.message || 'مشکل در ارتباط با سرور', {
                 style: { background: "red", color: "#fff" }
             });
         } finally {
