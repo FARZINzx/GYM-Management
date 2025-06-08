@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import {PersonnelType} from "@/data/type";
 import {getPersonnel} from "@/lib/services";
 import {useSelectedPersonnelStore} from "@/zustand/stores/selected-personnel-store";
-import {convertToJalali, formatToPersianCurrency} from '@/lib/utils'
+import {convertRoleNameToPersian, convertToJalali, formatToPersianCurrency} from '@/lib/utils'
 import {UserPen, UserRoundX} from "lucide-react";
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog'
 
@@ -145,7 +145,10 @@ export default function PersonnelProfile() {
                             <GridRow label=" میزان حقوق :" isLoading={isLoading}>
                                 <span>{formatToPersianCurrency(personnel?.salary)}</span> <span
                                 className='text-xs font-semibold'>ریال</span>
+                            </GridRow>
 
+                            <GridRow label=" نقش :" isLoading={isLoading}>
+                                {convertRoleNameToPersian(personnel?.role_name)}
                             </GridRow>
 
                             <GridRow label="وضعیت :" isLoading={isLoading}>

@@ -30,20 +30,25 @@ export interface User {
      birth_date : string
 }
 
-export interface PersonnelType {
-     id: string
-     first_name : string
-     last_name : string
-     role_name : string
-     age?:number
-     created_at? : string
-     is_active?:boolean
-     phone?:string
-     address?:string
-     salary?:number
-     role_id : number
-     birth_date : string
-}
+export type PersonnelType = {
+     id: number;
+     first_name: string;
+     last_name: string;
+     birth_date: string;
+     created_at: string;
+     updated_at: string;
+     is_active: boolean;
+     role_id: number;
+     phone?: string;
+     address?: string;
+     salary?: number;
+     age?: number;
+     username?: string;  // Add this
+     password_hash?: string;  // Add this if needed
+     question_id?: number;  // Add this if needed
+     question_answer_hash?: string;  // Add this if needed
+     role_name?: string;
+};
 
 export interface GymService {
      service_id: number;

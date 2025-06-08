@@ -25,56 +25,76 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getSecurityQuestions } from "@/lib/services";
 import { Eye, EyeOff } from 'lucide-react';
 
-
-
 type Role = {
     id: number;
     role_name: string;
 };
 
-const formSchema = z.object({
-    name: z.string({ required_error: "نام وارد نشده است" })
-        .min(2, { message: "نام باید حداقل ۲ کاراکتر باشد" })
-        .max(20, { message: "نام نمی‌تواند بیش از ۲۰ کاراکتر باشد" }),
-    familyName: z.string({ required_error: "نام خانوادگی وارد نشده است" })
-        .min(2, { message: "نام خانوادگی باید حداقل ۲ کاراکتر باشد" })
-        .max(30, { message: "نام خانوادگی نمی‌تواند بیش از ۳۰ کاراکتر باشد" }),
-    phone: z.string({ required_error: "شماره تلفن وارد نشده است" })
-        .length(11, { message: "شماره تلفن باید ۱۱ رقم باشد" })
-        .regex(/^09[0-9]{9}$/, { message: "شماره تلفن معتبر نیست" }),
-    birth: z
-        .string({ required_error: "تاریخ تولد وارد نشده است" })
+const baseSchema = {
+    name: z.string().min(2, { message: "نام باید حداقل ۲ کاراکتر باشد" }).max(20, { message: "نام نمی‌تواند بیش از ۲۰ کاراکتر باشد" }).optional(),
+    familyName: z.string().min(2, { message: "نام خانوادگی باید حداقل ۲ کاراکتر باشد" }).max(30, { message: "نام خانوادگی نمی‌تواند بیش از ۳۰ کاراکتر باشد" }).optional(),
+    phone: z.string().length(11, { message: "شماره تلفن باید ۱۱ رقم باشد" }).regex(/^09[0-9]{9}$/, { message: "شماره تلفن معتبر نیست" }).optional(),
+    birth: z.string()
         .refine(val => {
-            if (!val) return false;
-            const date = new DateObject({ date: val, calendar: persian , locale: persian_fa });
+            if (!val) return true; // Optional in edit mode
+            const date = new DateObject({ date: val, calendar: persian, locale: persian_fa });
             const year = date.year;
-
             return year >= 1315 && year <= 1395;
         }, {
             message: "سال تولد باید بین ۱۳۱۵ تا ۱۳۹۵ باشد"
-        }),
+        })
+        .optional(),
     salary: z.number({
-        required_error: "مقدار حقوق دریافتی وارد نشده است",
         invalid_type_error: "حقوق باید عدد باشد"
     })
         .min(0, { message: "حقوق نمی‌تواند منفی باشد" })
-        .max(1000000000, { message: "حقوق نمی‌تواند بیش از ۱ میلیارد ریال باشد" }),
-    role: z.number({ required_error: "لطفاً یک نقش را انتخاب کنید" }).optional(),
-    address: z.string({ required_error: "آدرس وارد نشده است" })
-        .max(100, { message: " آدرس باید حداکثر 100 کاراکتر باشد " }),
+        .max(1000000000, { message: "حقوق نمی‌تواند بیش از ۱ میلیارد ریال باشد" })
+        .optional(),
+    role: z.number().optional(),
+    address: z.string().max(100, { message: " آدرس باید حداکثر 100 کاراکتر باشد " }).optional(),
     username: z.string()
         .min(3, "نام کاربری باید حداقل ۳ حرف باشد")
         .max(25, "نام کاربری نمی‌تواند بیش از ۲۵ حرف باشد")
-        .regex(/^[a-z0-9_]+$/i, "نام کاربری فقط می‌تواند شامل حروف انگلیسی، عدد و زیرخط باشد"),
+        .regex(/^[a-z0-9_]+$/i, "نام کاربری فقط می‌تواند شامل حروف انگلیسی، عدد و زیرخط باشد")
+        .optional(),
     password: z.string()
         .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد")
         .max(20, "رمز عبور نمی‌تواند بیش از ۲۰ حرف باشد")
-        .refine(val => /[A-Za-z]/.test(val) && /\d/.test(val), {
+        .refine(val => !val || (/[A-Za-z]/.test(val) && /\d/.test(val)), {
             message: "رمز عبور باید شامل حروف و عدد انگلیسی باشد"
-        }),
-    question_id: z.number().min(1, "سوال امنیتی باید انتخاب شود"),
-    question_answer: z.string().min(2, "پاسخ باید حداقل ۲ حرف باشد")
-});
+        })
+        .optional(),
+    question_id: z.number().optional(),
+    question_answer: z.string().min(2, "پاسخ باید حداقل ۲ حرف باشد").optional()
+};
+
+// Create different schemas for edit and register modes
+const createFormSchema = (isEditMode: boolean) => {
+    if (!isEditMode) {
+        return z.object(baseSchema);
+    }
+
+    // For edit mode, make all fields optional but keep validation if provided
+    return z.object({
+        name: baseSchema.name.optional(),
+        familyName: baseSchema.familyName.optional(),
+        phone: baseSchema.phone.optional(),
+        birth: baseSchema.birth.optional(),
+        salary: baseSchema.salary.optional(),
+        role: baseSchema.role.optional(),
+        address: baseSchema.address.optional(),
+        username: baseSchema.username.optional(),
+        password: z.union([
+            z.literal(''), // Allow empty string (no change)
+            baseSchema.password.unwrap() // Or validate if provided
+        ]),
+        question_id: baseSchema.question_id.optional(),
+        question_answer: z.union([
+            z.literal(''), // Allow empty string (no change)
+            baseSchema.question_answer.unwrap() // Or validate if provided
+        ])
+    });
+};
 
 export default function AddPersonnel() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -85,27 +105,31 @@ export default function AddPersonnel() {
     const router = useRouter();
     const [roles, setRoles] = useState<Role[] | null>(null);
     const [showPassword, setShowPassword] = useState(false);
-
-
-    const [securityQuestions, setSecurityQuestions] = useState<{question_id : number , question_text : string}[]>([]);
+    const [securityQuestions, setSecurityQuestions] = useState<{question_id: number, question_text: string}[]>([]);
     const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
-    const form = useForm<z.infer<typeof formSchema>>({
+    const [isEditingPassword, setIsEditingPassword] = useState(false);
+
+    const formSchema = createFormSchema(isEditMode);
+    type FormValues = z.infer<typeof formSchema>;
+
+    const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: '',
             familyName: '',
             phone: '',
             birth: '',
-            salary: 0,
+            salary: undefined,
             role: undefined,
             address: '',
             username: "",
             password: "",
-            question_id: 0,
+            question_id: undefined,
             question_answer: ""
         },
         mode: "onChange"
     });
+
 
     useEffect(() => {
         const fetchSecurityQuestions = async () => {
@@ -161,9 +185,13 @@ export default function AddPersonnel() {
                 familyName: selectedPersonnel.last_name,
                 phone: selectedPersonnel.phone,
                 birth: isoToJalali(selectedPersonnel.birth_date),
-                salary: selectedPersonnel.salary,
+                salary: Number(selectedPersonnel.salary),
                 role: selectedPersonnel.role_id,
-                address: selectedPersonnel.address
+                address: selectedPersonnel.address,
+                username: selectedPersonnel.username,
+                password: "",
+                question_id: selectedPersonnel.question_id,
+                question_answer: ""
             });
         }
     }, [isEditMode, selectedPersonnel, form]);
@@ -183,9 +211,12 @@ export default function AddPersonnel() {
                 familyName: selectedPersonnel.last_name,
                 phone: selectedPersonnel.phone,
                 birth: isoToJalali(selectedPersonnel.birth_date),
-                salary: selectedPersonnel.salary,
+                salary: Number(selectedPersonnel.salary),
                 role: selectedPersonnel.role_id,
-                address: selectedPersonnel.address
+                address: selectedPersonnel.address,
+                username: selectedPersonnel.username,
+                question_id: selectedPersonnel.question_id,
+                question_answer: ""
             };
 
             // Compare each field
@@ -204,73 +235,76 @@ export default function AddPersonnel() {
                 return formValue !== originalValue;
             });
 
-            setHasChanges(hasChanged);
+            // Also check if password is being changed
+            const passwordChanged = isEditingPassword && values.password !== "";
+
+            setHasChanges(hasChanged || passwordChanged);
         });
 
         return () => subscription.unsubscribe();
-    }, [form.watch, isEditMode, selectedPersonnel]);
+    }, [form.watch, isEditMode, selectedPersonnel, isEditingPassword]);
 
-   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setLoading(true);
-    try {
-        const url = isEditMode
-            ? `http://localhost:3001/api/personnel/${selectedPersonnel?.id}`
-            : 'http://localhost:3001/api/personnel/register';
+    const onSubmit = async (values: FormValues) => {
+        setLoading(true);
+        try {
+            const url = isEditMode
+                ? `http://localhost:3001/api/personnel/${selectedPersonnel?.id}`
+                : 'http://localhost:3001/api/personnel/register';
 
-        const method = isEditMode ? 'PUT' : 'POST';
+            const method = isEditMode ? 'PUT' : 'POST';
 
-        // Prepare the payload
-        const payload: any = {
-            first_name: values.name,
-            last_name: values.familyName,
-            phone: values.phone,
-            birth_date: values.birth,
-            salary: values.salary,
-            role_id: values.role,
-            address: values.address,
-            username: values.username,
-            question_id: values.question_id,
-            question_answer: values.question_answer
-        };
+            // Prepare the payload - only include fields that have values
+            const payload: any = {};
 
-        // Only include password in registration or if changed in edit mode
-        if (!isEditMode || values.password) {
-            payload.password = values.password;
-        }
+            if (values.name) payload.first_name = values.name;
+            if (values.familyName) payload.last_name = values.familyName;
+            if (values.phone) payload.phone = values.phone;
+            if (values.birth) payload.birth_date = values.birth;
+            if (values.salary !== undefined) payload.salary = values.salary;
+            if (values.role) payload.role_id = values.role;
+            if (values.address) payload.address = values.address;
+            if (values.username) payload.username = values.username;
+            if (values.question_id) payload.question_id = values.question_id;
+            if (values.question_answer) payload.question_answer = values.question_answer;
 
-        const response = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
+            // Only include password if it's being changed (edit mode) or in registration
+            if ((isEditMode && values.password) || !isEditMode) {
+                payload.password = values.password;
+            }
 
-        const data = await response.json();
-
-        if (response.ok) {
-            toast.success(data.message || (isEditMode ? 'اطلاعات با موفقیت بروزرسانی شد' : 'ثبت نام موفقیت‌آمیز بود'), {
-                style: { background: "#31C440", color: "#fff" }
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
             });
 
-            if (isEditMode) {
-                clearSelectedPersonnel();
-                router.push(`/personnel/${selectedPersonnel?.id}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success(data.message || (isEditMode ? 'اطلاعات با موفقیت بروزرسانی شد' : 'ثبت نام موفقیت‌آمیز بود'), {
+                    style: { background: "#31C440", color: "#fff" }
+                });
+
+                if (isEditMode) {
+                    clearSelectedPersonnel();
+                    router.push(`/personnel/${selectedPersonnel?.id}`);
+                } else {
+                    form.reset();
+                    router.push("/");
+                }
             } else {
-                form.reset();
-                router.push("/");
+                toast.error(data.message || 'خطایی رخ داده است', {
+                    style: { background: "red", color: "#fff" }
+                });
             }
-        } else {
-            toast.error(data.message || 'خطایی رخ داده است', {
+        } catch (error: any) {
+            toast.error(error.message || 'مشکل در ارتباط با سرور', {
                 style: { background: "red", color: "#fff" }
             });
+        } finally {
+            setLoading(false);
         }
-    } catch (error: any) {
-        toast.error(error.message || 'مشکل در ارتباط با سرور', {
-            style: { background: "red", color: "#fff" }
-        });
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number) => void) => {
         const value = e.target.value.replace(/,/g, '');
@@ -286,8 +320,7 @@ export default function AddPersonnel() {
         }
     };
 
-      const pass = form.watch("password");
-
+    const pass = form.watch("password");
 
     return (
         <div className="w-full min-h-screen relative flex justify-center">
@@ -315,7 +348,7 @@ export default function AddPersonnel() {
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}
-                        className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
+                          className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
 
                         {/* Name Field */}
                         <FormField
@@ -394,21 +427,18 @@ export default function AddPersonnel() {
                             control={form.control}
                             render={({field}) => (
                                 <FormItem className="relative w-full">
-                                    <div
-                                        className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
+                                    <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
                                         تاریخ تولد
                                     </div>
                                     <FormControl>
-                                        <div
-                                            className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
-                                            style={{direction: "rtl"}}>
+                                        <div className="h-11 w-full rounded-lg flex items-center justify-center border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                             style={{direction: "rtl"}}>
                                             <DatePicker
                                                 value={
                                                     field.value
                                                         ? new DateObject({ date: field.value, calendar: persian, locale: persian_fa })
                                                         : ""
                                                 }
-
                                                 currentDate={new DateObject({ year: 1395, month: 1, day: 1, calendar: persian })}
                                                 onChange={(date) => {
                                                     if (date?.isValid) {
@@ -466,7 +496,7 @@ export default function AddPersonnel() {
                                             type="text"
                                             dir="ltr"
                                             maxLength={12}
-                                            value={field.value.toLocaleString('en-US')}
+                                            value={field.value?.toLocaleString('en-US')}
                                             onChange={(e) => handleSalaryChange(e, field.onChange)}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
@@ -492,7 +522,8 @@ export default function AddPersonnel() {
                                     >
                                         <FormControl>
                                             <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="لطفا یک نقش انتخاب کنید" />                                          </SelectTrigger>
+                                                <SelectValue placeholder="لطفا یک نقش انتخاب کنید" />
+                                            </SelectTrigger>
                                         </FormControl>
                                         <SelectContent className='z-50 bg-[var(--secondary)]'>
                                             {roles?.map((role) => (
@@ -542,9 +573,7 @@ export default function AddPersonnel() {
                                 control={form.control}
                                 render={({ field }) => (
                                     <FormItem className="relative w-full mt-4">
-                                        <div
-                                            className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
-                                        >
+                                        <div className="absolute -top-[15px] right-2 bg-secondary px-1 text-[var(--primary)]">
                                             نام کاربری
                                         </div>
                                         <FormControl>
@@ -562,63 +591,88 @@ export default function AddPersonnel() {
                                 )}
                             />
 
-                            <FormField
-                                name="password"
-                                control={form.control}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <div className="relative h-full w-full">
-                                                <div
-                                                    className={`absolute -top-[17px] right-2 bg-[var(--secondary)] px-1 text-lg text-midnightNavy`}
-                                                >
-                                                    رمز عبور
-                                                </div>
-                                                <input
-                                                    dir="ltr"
-                                                    type={showPassword ? "text" : "password"}
-                                                    {...field}
-                                                    maxLength={20}
-                                                    className={`h-12 w-full rounded-lg border border-midnightNavy bg-transparent px-3 text-midnightNavy outline-0`}
-                                                    disabled={loading}
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    className={`absolute inset-y-0 right-3 ${pass != "" ? "flex" : "hidden"
-                                                        } items-center text-[var(--primary)]`}
-                                                    disabled={loading}
-                                                >
-                                                    {showPassword ? (
-                                                        <Eye className="h-5 w-5" />
-                                                    ) : (
-                                                        <EyeOff className="h-5 w-5" />
+                            {isEditMode && !isEditingPassword ? (
+                                <div className="relative">
+                                    <div className="absolute -top-[17px] right-2 bg-[var(--secondary)] px-1 text-lg text-[var(--primary)]">
+                                        رمز عبور
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full h-12 border-[var(--primary)] text-[var(--primary)]"
+                                        onClick={() => setIsEditingPassword(true)}
+                                    >
+                                        تغییر رمز عبور
+                                    </Button>
+                                </div>
+                            ) : (
+                                <FormField
+                                    name="password"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <div className="relative h-full w-full">
+                                                    <div className="absolute -top-[17px] right-2 bg-[var(--secondary)] px-1 text-lg text-[var(--primary)]">
+                                                        رمز عبور
+                                                    </div>
+                                                    <input
+                                                        dir="ltr"
+                                                        type={showPassword ? "text" : "password"}
+                                                        {...field}
+                                                        maxLength={20}
+                                                        className="h-12 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
+                                                        disabled={loading}
+                                                        placeholder={isEditMode ? "رمز عبور جدید" : "رمز عبور"}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        className={`absolute inset-y-0 right-3 ${pass != "" ? "flex" : "hidden"} items-center text-[var(--primary)]`}
+                                                        disabled={loading}
+                                                    >
+                                                        {showPassword ? (
+                                                            <Eye className="h-5 w-5" />
+                                                        ) : (
+                                                            <EyeOff className="h-5 w-5" />
+                                                        )}
+                                                    </button>
+                                                    {isEditMode && isEditingPassword && (
+                                                        <button
+                                                            type="button"
+                                                            className="absolute left-2 top-2 text-xs text-red-500"
+                                                            onClick={() => {
+                                                                setIsEditingPassword(false);
+                                                                form.setValue("password", "");
+                                                            }}
+                                                        >
+                                                            انصراف
+                                                        </button>
                                                     )}
-                                                </button>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage dir="rtl" className="text-red-600 text-xs" />
-                                    </FormItem>
-                                )}
-                            />
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage dir="rtl" className="text-red-600 text-xs" />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+
                             <FormField
                                 control={form.control}
                                 name="question_id"
                                 render={({ field }) => (
                                     <FormItem className="w-full relative">
-                                        <div
-                                            className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
-                                        >
-                                           سوال امنیتی
+                                        <div className="absolute -top-[15px] right-2 bg-secondary px-1 text-[var(--primary)]">
+                                            سوال امنیتی
                                         </div>
-                                    
                                         <Select
                                             onValueChange={(value) => field.onChange(Number(value))}
                                             disabled={isLoadingQuestions}
+                                            value={field.value?.toString()}
                                         >
                                             <FormControl>
                                                 <SelectTrigger className="bg-transparent border-[var(--primary)] text-[var(--primary)] max-w-60 w-full truncate" dir="rtl">
-                                                    <SelectValue/>
+                                                    <SelectValue placeholder="سوال امنیتی را انتخاب کنید" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent className="bg-[var(--secondary)] border-[var(--primary)] w-full">
@@ -643,15 +697,14 @@ export default function AddPersonnel() {
                                 name="question_answer"
                                 render={({ field }) => (
                                     <FormItem className="w-full relative pb-2">
-                                         <div
-                                            className={`absolute -top-[15px] right-2 bg-secondary px-1  text-[var(--primary)]`}
-                                        >
-                                            پاسخ سوال امنیتی 
+                                        <div className="absolute -top-[15px] right-2 bg-secondary px-1 text-[var(--primary)]">
+                                            پاسخ سوال امنیتی
                                         </div>
                                         <FormControl>
                                             <input
                                                 className="bg-transparent rounded-md p-1 w-full border-[var(--primary)] border text-[var(--primary)]"
                                                 {...field}
+                                                placeholder={isEditMode ? "پاسخ جدید را وارد کنید" : "پاسخ سوال امنیتی"}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-xs text-red-500" />
@@ -661,8 +714,7 @@ export default function AddPersonnel() {
                         </div>
 
                         <Button
-                            className={`h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold active:scale-95 duration-500 ${(isEditMode && !hasChanges) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-90'
-                                }`}
+                            className={`h-10 w-full rounded-lg text-[var(--secondary)] bg-primary text-center text-[16px] font-semibold active:scale-95 duration-500 ${(isEditMode && !hasChanges) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-90'}`}
                             type="submit"
                             disabled={(isEditMode && !hasChanges) || loading}
                         >
