@@ -144,6 +144,7 @@ const formSchema = z.object({
         <div className="absolute inset-0 bg-black/30" />
       </div>
       <div className="z-10 flex flex-col items-center justify-center gap-10">
+        <p className="text-sm text-[var(--secondary)]">باشگاه‌یار (مدیریت باشگاه ورزشی شما)</p>
         <p className="text-5xl text-[var(--secondary)]">ورود</p>
         <Form {...form}>
           <form
