@@ -1,12 +1,12 @@
 "use client";
-import {useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import {useEffect, useState} from "react";
+import {useForm} from "react-hook-form";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useRouter} from "next/navigation";
 import toast from "react-hot-toast";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {Button} from "@/components/ui/button";
+import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form";
 import Spinner from "@/components/loading/LoadingSpinner";
 import Image from "next/image";
 import {
@@ -21,15 +21,16 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
+import {Check, ChevronsUpDown} from "lucide-react"
+import {cn} from "@/lib/utils"
+import {Badge} from "@/components/ui/badge"
+import {getCookie} from "@/action/cookie";
 
 // Define service types - these should match your service_types table in the database
 const services = [
-    { id: 1, name: "Bodybuilding", label: "بدنسازی" },
-    { id: 2, name: "Aerobic", label: "هوازی" },
-    { id: 3, name: "Nutrition", label: "تغذیه" },
+    {id: 1, name: "Bodybuilding", label: "بدنسازی"},
+    {id: 2, name: "Aerobic", label: "هوازی"},
+    {id: 3, name: "Nutrition", label: "تغذیه"},
 ] as const
 
 export default function RequestTrainer() {
@@ -38,10 +39,23 @@ export default function RequestTrainer() {
     const [open, setOpen] = useState(false)
     const [selectedServices, setSelectedServices] = useState<number[]>([])
 
+    const [id, setId] = useState<string>('')
+
+    useEffect(() => {
+        const fetchId = async () => {
+            const idCookie = await getCookie('id')
+            setId(idCookie || '')
+        }
+        if (!id) {
+            fetchId()
+        }
+
+    }, [id])
+
     const formSchema = z.object({
-        client_phone: z.string({ required_error: "شماره تلفن وارد نشده است" })
-            .min(11, { message: "شماره تلفن باید ۱۱ رقم باشد" })
-            .regex(/^[0-9]+$/, { message: "شماره تلفن فقط باید شامل اعداد باشد" }),
+        client_phone: z.string({required_error: "شماره تلفن وارد نشده است"})
+            .min(11, {message: "شماره تلفن باید ۱۱ رقم باشد"})
+            .regex(/^[0-9]+$/, {message: "شماره تلفن فقط باید شامل اعداد باشد"}),
         services: z.array(z.number()).min(1, "حداقل یک سرویس باید انتخاب شود"),
         notes: z.string().optional()
     });
@@ -68,7 +82,8 @@ export default function RequestTrainer() {
                 body: JSON.stringify({
                     client_phone: values.client_phone,
                     services: values.services,
-                    notes: values.notes
+                    notes: values.notes,
+                    created_by : id
                 }),
             });
 
@@ -76,19 +91,19 @@ export default function RequestTrainer() {
 
             if (response.ok) {
                 toast.success(data.message || 'درخواست با موفقیت ایجاد شد', {
-                    style: { background: "#31C440", color: "#fff" }
+                    style: {background: "#31C440", color: "#fff"}
                 });
                 form.reset();
                 setSelectedServices([]);
                 router.push("/"); // Or wherever you want to redirect
             } else {
                 toast.error(data.message || 'خطایی رخ داده است', {
-                    style: { background: "red", color: "#fff" }
+                    style: {background: "red", color: "#fff"}
                 });
             }
-        } catch (error : any) {
+        } catch (error: any) {
             toast.error(error.message || 'مشکل در ارتباط با سرور', {
-                style: { background: "red", color: "#fff" }
+                style: {background: "red", color: "#fff"}
             });
         } finally {
             setLoading(false);
@@ -120,14 +135,16 @@ export default function RequestTrainer() {
                 </p>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
+                    <form onSubmit={form.handleSubmit(onSubmit)}
+                          className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
                         {/* Phone Field */}
                         <FormField
                             name="client_phone"
                             control={form.control}
-                            render={({ field }) => (
+                            render={({field}) => (
                                 <FormItem className="relative w-full">
-                                    <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
+                                    <div
+                                        className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
                                         شماره تلفن مشتری
                                     </div>
                                     <FormControl>
@@ -141,7 +158,7 @@ export default function RequestTrainer() {
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600" />
+                                    <FormMessage dir="rtl" className="text-red-600"/>
                                 </FormItem>
                             )}
                         />
@@ -150,9 +167,10 @@ export default function RequestTrainer() {
                         <FormField
                             name="notes"
                             control={form.control}
-                            render={({ field }) => (
+                            render={({field}) => (
                                 <FormItem className="relative w-full">
-                                    <div className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
+                                    <div
+                                        className="absolute -top-[12px] right-2 bg-secondary px-1 text-[var(--primary)]">
                                         توضیحات (اختیاری)
                                     </div>
                                     <FormControl>
@@ -162,7 +180,7 @@ export default function RequestTrainer() {
                                             className="h-20 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 py-2 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
-                                    <FormMessage dir="rtl" className="text-red-600" />
+                                    <FormMessage dir="rtl" className="text-red-600"/>
                                 </FormItem>
                             )}
                         />
@@ -171,7 +189,7 @@ export default function RequestTrainer() {
                         <FormField
                             control={form.control}
                             name="services"
-                            render={({ field }) => (
+                            render={({field}) => (
                                 <FormItem className="flex flex-col">
                                     <div className="text-[var(--primary)] mb-2">سرویس‌های مورد نیاز:</div>
                                     <Popover open={open} onOpenChange={setOpen}>
@@ -188,13 +206,13 @@ export default function RequestTrainer() {
                                                             services.find(s => s.id === serviceId)?.label
                                                         ).join(", ")
                                                         : "سرویس‌ها را انتخاب کنید"}
-                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
                                                 </Button>
                                             </FormControl>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-full p-0 bg-secondary">
                                             <Command>
-                                                <CommandInput placeholder="جستجوی سرویس..." />
+                                                <CommandInput placeholder="جستجوی سرویس..."/>
                                                 <CommandEmpty>سرویس یافت نشد</CommandEmpty>
                                                 <CommandGroup>
                                                     {services.map((service) => (
@@ -234,7 +252,7 @@ export default function RequestTrainer() {
                                             </Badge>
                                         ))}
                                     </div>
-                                    <FormMessage dir="rtl" className="text-red-600" />
+                                    <FormMessage dir="rtl" className="text-red-600"/>
                                 </FormItem>
                             )}
                         />
@@ -244,7 +262,7 @@ export default function RequestTrainer() {
                             type="submit"
                             disabled={loading}
                         >
-                            {loading ? <Spinner /> : 'ثبت درخواست'}
+                            {loading ? <Spinner/> : 'ثبت درخواست'}
                         </Button>
                     </form>
                 </Form>
