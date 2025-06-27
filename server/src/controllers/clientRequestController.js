@@ -9,7 +9,6 @@ import { sendResponse } from "../middlewares/responseHandler.js";
 
 export async function createRequestController(req, res, next) {
   try {
-    console.log(req.user);
     const { client_phone, services, notes, created_by } = req.body;
 
     const result = await createRequestService(
