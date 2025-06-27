@@ -97,8 +97,8 @@ export default function RequestTrainer() {
                 setSelectedServices([]);
                 router.push("/"); // Or wherever you want to redirect
             } else {
-                toast.error(data.message || 'خطایی رخ داده است', {
-                    style: {background: "red", color: "#fff"}
+                toast.error( data.message || 'خطایی در خواست رخ داده است', {
+                    style: {background: "red", color: "#fff",fontSize:"14px"}
                 });
             }
         } catch (error: any) {
