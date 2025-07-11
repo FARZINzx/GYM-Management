@@ -75,7 +75,7 @@ export const ReceptionPanelItem: IconButtonProps[] = [
         id: 7,
         label: "درخواست مربی",
         icon: ChartPie,
-        href: '/trainers/request'
+        href: '/trainers/createRequest'
     },
     {
         id: 6,
@@ -98,7 +98,7 @@ export const CoachPanelItem: IconButtonProps[] = [
         id: 8,
         label: "درخواست ها",
         icon: UserRoundPlus,
-        href: '/'
+        href: '/trainers/requests'
     },
     {
         id: 9,
