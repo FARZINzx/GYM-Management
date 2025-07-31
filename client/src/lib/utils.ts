@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 
-// Helper function : request to fullscreen and Exit fullscreen
+// Helper function : createRequest to fullscreen and Exit fullscreen
 export function toggleFullScreen() {
   if (typeof window === 'undefined') return;
 

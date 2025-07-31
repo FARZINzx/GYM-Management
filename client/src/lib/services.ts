@@ -39,7 +39,6 @@ export const getUser = async (id : any) => {
     }
 };
 
-
 export const getAllPersonnel = async () => {
     try {
         const response = await fetch(`http://localhost:3001/api/personnel`, {
@@ -240,6 +239,55 @@ export const getSecurityQuestions = async () => {
     throw new Error(error.message || 'Failed to fetch security questions');
   }
 };
+
+export const getRequestsService = async () => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/client-requests/pending`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch requests for trainer-clients');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error : any) {
+        throw new Error(error.message || 'Failed to fetch requests for trainer-clients');
+    }
+};
+
+export const handleAcceptOrRejectService = async (
+    trainer_id: number,
+    status: string,
+    request_id: number
+) => {
+    try {
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_SERVER_URL}/client-requests/${request_id}/process`, // توجه کن این آدرس باید `/process` داشته باشه
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ status, trainer_id }),
+            }
+        );
+
+        console.log(response)
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || `HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, data };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.message || 'خطا در ویرایش خدمت',
+        };
+    }
+};
+
+
 
 
 
