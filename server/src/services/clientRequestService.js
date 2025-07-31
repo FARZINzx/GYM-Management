@@ -181,7 +181,7 @@ export async function getPendingRequestsService() {
     if (!requests.length) {
       return {
         success: true,
-        message: "No pending requests found",
+        message: "درخواستی با این ایدی وجود ندارد",
         data: [],
         status: 200,
       };
@@ -259,11 +259,11 @@ export async function processRequestService(request_id, status, trainer_id) {
     );
 
     if (checkResult.rows.length === 0) {
-      throw new Error("Request not found");
+      throw new Error("درخواستی با این ایدی وجود ندارد");
     }
 
     if (checkResult.rows[0].status !== "pending") {
-      throw new Error("Request already processed");
+      throw new Error("وضعیت این درخواست از قبل مشخص شده است!");
     }
 
     // Update createRequest status
@@ -301,7 +301,7 @@ export async function processRequestService(request_id, status, trainer_id) {
 
     return {
       success: true,
-      message: `Request ${status} successfully`,
+      message: `عملیات با موقق انحام شد`,
       data: fullRequest,
       status: 200,
     };

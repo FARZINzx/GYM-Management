@@ -44,11 +44,19 @@ export async function getPendingRequestsController(req, res, next) {
 
 export async function processRequestController(req, res, next) {
   try {
-    const { status } = req.body;
+    const { status, trainer_id } = req.body;
     const request_id = req.params.id;
-    const trainer_id = req.user.id;
 
     const result = await processRequestService(request_id, status, trainer_id);
+
+    if (!result.success) {
+      // اگر موفق نبود، ارسال خطای واقعی
+      return sendResponse(res, {
+        success: false,
+        message: result.message,
+        status: result.status || 400,
+      });
+    }
 
     return sendResponse(res, result);
   } catch (error) {
