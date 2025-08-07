@@ -2,7 +2,6 @@
 import {useState, useEffect} from "react";
 import {useParams, useRouter} from "next/navigation";
 import Header from "@/components/ui/header";
-// import { toggleFullScreen } from "@/lib/utils";
 import clsx from "clsx";
 import toast from "react-hot-toast";
 import {PersonnelType} from "@/data/type";

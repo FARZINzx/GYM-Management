@@ -104,7 +104,7 @@ export const CoachPanelItem: IconButtonProps[] = [
         id: 9,
         label: "شاگرد ها",
         icon: Users,
-        href: '/'
+        href: '/trainers/pupil'
     },
       {
         id: 11,

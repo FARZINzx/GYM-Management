@@ -66,7 +66,7 @@ export async function processRequestController(req, res, next) {
 
 export async function getTrainerClientsController(req, res, next) {
   try {
-    const trainer_id = req.user.id;
+    const trainer_id = req.params.id;
     const result = await getTrainerClientsService(trainer_id);
     return sendResponse(res, result);
   } catch (error) {

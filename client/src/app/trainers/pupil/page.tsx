@@ -2,17 +2,15 @@
 import {useEffect, useState} from "react";
 import Header from "@/components/ui/header";
 import {convertToJalali} from '@/lib/utils'
-import {Request} from "@/data/type";
-import Spinner from "@/components/loading/LoadingSpinner";
+import {Pupil} from "@/data/type";
 //services
-import {getRequestsService, handleAcceptOrRejectService} from "@/lib/services";
+import {getPupilOfTrainerService} from "@/lib/services";
 import toast from "react-hot-toast";
 import {getCookie} from "@/action/cookie";
 
-export default function Requests() {
+export default function PupilsOfTrainers() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [requests, setRequests] = useState<Request[]>([]);
-    const [isStatusLoading, setIsStatusLoading] = useState<boolean>(false);
+    const [data, setData] = useState<Pupil[]>([]);
     const [trainerId, setTrainerId] = useState<string>('')
 
     useEffect(() => {
@@ -29,8 +27,9 @@ export default function Requests() {
     const fetchRequests = async () => {
         try {
             setIsLoading(true);
-            const response = await getRequestsService()
-            setRequests(response.data);
+            const response = await getPupilOfTrainerService(Number(trainerId))
+            console.log(response)
+            setData(response.data);
         } catch (error: any) {
             toast.error(error.message || 'خطا در ارتباط با سرور', {
                 style: {background: "red", color: "#fff"}
@@ -40,34 +39,11 @@ export default function Requests() {
         }
     }
 
-    const handleAcceptOrReject = async (status: "accepted" | "rejected", request_id: number) => {
-        setIsStatusLoading(true)
-        try {
-            const response = await handleAcceptOrRejectService(Number(trainerId), status, request_id)
-            if (response.success) {
-                fetchRequests()
-                setIsStatusLoading(false)
-                toast.success(response.message, {
-                    style: {
-                        background: "#31C440",
-                        color: "#fff",
-                    },
-                    duration: 2000
-                });
-
-            }
-        } catch (error: any) {
-            toast.error(error.message || 'خطا در ارتباط با سرور', {
-                style: {background: "red", color: "#fff"}
-            });
-        } finally {
-            setIsStatusLoading(false);
-        }
-    }
 
     useEffect(() => {
+        if(!trainerId) return
         fetchRequests()
-    }, []);
+    }, [trainerId]);
 
 
     return (
@@ -81,7 +57,7 @@ export default function Requests() {
                     <div
                         className='w-full flex text-[var(--secondary)] text-center border-b border-[var(--secondary)] items-center pb-2 justify-center relative'>
                         <h2 className="text-3xl">
-                            درخواست ها
+                            شاگرد ها
                         </h2>
                     </div>
 
@@ -91,45 +67,43 @@ export default function Requests() {
                             ? Array.from({length: 10}).map((_, index) => (
                                 <div
                                     key={index}
-                                    className="w-full animate-pulse gap-1 bg-gray-500 rounded-xl h-40 duration-500">
+                                    className="w-full animate-pulse gap-1 bg-gray-500 rounded-xl h-80 duration-500">
                                 </div>
                             ))
                             : <div className="flex flex-col gap-3 overflow-y-scroll h-full hide-scrollbar">
                                 {
-                                    requests.length > 0
-                                        ? requests.map((request) => (
+                                    data.length > 0
+                                        ? data.map((request) => (
                                             <div
                                                 key={request.request_id}
-                                                className='flex w-full flex-col '>
-                                                <div
-                                                    className='flex w-full gap-2 flex-col p-2 rounded-t-md bg-secondary text-sm'>
+                                                    className='flex w-full gap-2 flex-col p-2 rounded-md bg-secondary text-sm'>
                                                     <div className='w-full flex justify-between items-center'>
                                                         <p>نام و نام خانوادگی :</p>
-                                                        <p className='font-semibold'>{request.client_name} {request.client_last_name}</p>
+                                                        <p className='font-semibold'>{request.first_name} {request.last_name}</p>
                                                     </div>
                                                     <div className='w-full flex justify-between items-center'>
                                                         <p>شماره تلفن :</p>
-                                                        <p className='font-semibold'>{request.client_phone}</p>
+                                                        <p className='font-semibold'>{request.phone}</p>
                                                     </div>
                                                     <div className='w-full flex justify-between items-center'>
                                                         <p> وزن :</p>
-                                                        <p className='font-semibold'>{request.client_weight_kg}</p>
+                                                        <p className='font-semibold'>{request.weight_kg}</p>
                                                     </div>
                                                     <div className='w-full flex justify-between items-center'>
                                                         <p> قد :</p>
-                                                        <p className='font-semibold'>{request.client_height_cm}</p>
+                                                        <p className='font-semibold'>{request.height_cm}</p>
                                                     </div>
                                                     <div className='w-full flex justify-between items-center'>
                                                         <p>شاخص BMI :</p>
-                                                        <p className='font-semibold'>{request.client_bmi}</p>
+                                                        <p className='font-semibold'>{request.bmi}</p>
                                                     </div>
                                                     <div className='w-full flex justify-between items-center'>
                                                         <p>تاریخ درخواست :</p>
                                                         <p className='font-semibold'>{convertToJalali(request.created_at.toString())}</p>
                                                     </div>
                                                     <div className='w-full flex justify-between items-center'>
-                                                        <p>توضیحات :</p>
-                                                        <p className='font-semibold'>{request.notes}</p>
+                                                        <p>جنسیت :</p>
+                                                        <p className='font-semibold'>{request.gender == 'male' ?  'مذکر' : "مونث"}</p>
                                                     </div>
                                                     <div className='w-full flex flex-col justify-between'>
                                                         <p>خدمت های خواسته شده :</p>
@@ -139,26 +113,10 @@ export default function Requests() {
                                                                  className=' font-semibold flex items-center justify-center p-1 rounded border text-sm'>{item.name}</div>
                                                         ))}</div>
                                                     </div>
-                                                </div>
-                                                <div
-                                                    className='flex items-center justify-between w-full border-t border-primary'>
-                                                    <button
-                                                        onClick={() => handleAcceptOrReject('accepted', request.request_id)}
-                                                        disabled={isStatusLoading}
-                                                        className='bg-secondary disabled:opacity-70 active:scale-95 font-semibold duration-300 py-2 border-l rounded-br-md border-primary text-green-600 w-full '> {
-                                                        isStatusLoading ? <Spinner/> : 'پذیرفتن'
-                                                    }
-                                                    </button>
-                                                    <button
-                                                        disabled={isStatusLoading}
-                                                        onClick={() => handleAcceptOrReject('rejected', request.request_id)}
-                                                        className='bg-secondary py-2 text-red-500 disabled:opacity-70 font-semibold rounded-bl-md active:scale-95 duration-300 w-full rounded-lb-md flex items-center justify-center'> رد
-                                                        کردن
-                                                    </button>
-                                                </div>
+
                                             </div>
                                         ))
-                                        : <div className='text-secondary text-lg text-center'>درخواستی وجود ندارد</div>
+                                        : <div className='text-secondary text-lg text-center'>شاگردی برای شما وجود ندارد</div>
                                 }
                             </div>
                     }
