@@ -2,7 +2,6 @@
 import Link from "next/link";
 //components
 import Header from "@/components/ui/header";
-import { toggleFullScreen } from "@/lib/utils";
 //DB
 import { CoachesDB } from "@/data/db";
 //interface
@@ -14,7 +13,6 @@ export default function Coaches() {
   return (
     <main
       className="min-h-screen bg-[var(--primary)] "
-      onClick={() => toggleFullScreen()}
     >
       <div className="max-w-[430px] mx-auto relative">
         {/* Header */}

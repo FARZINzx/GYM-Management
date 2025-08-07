@@ -3,7 +3,6 @@ import {useState, useEffect} from "react";
 import Link from "next/link";
 //components
 import Header from "@/components/ui/header";
-import {toggleFullScreen} from "@/lib/utils";
 import toast from "react-hot-toast";
 //interface
 import {User} from '@/data/type'
@@ -51,8 +50,7 @@ export default function Users() {
 
     return (
         <main
-            className="min-h-screen bg-[var(--primary)] "
-            onClick={() => toggleFullScreen()}
+            className="min-h-screen bg-[var(--primary)]"
         >
             <div className="max-w-[430px] mx-auto relative">
                 {/* Header */}

@@ -1,19 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import Image from "next/image";
 import LoadingSpinner from "@/components/loading/LoadingSpinner";
-import { toggleFullScreen } from "@/lib/utils";
 
 export default function LoadingScreen() {
-  useEffect(() => {
-    const handleClick = () => {
-      toggleFullScreen();
-    };
-
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

@@ -37,6 +37,6 @@ router.put(
   processRequestController,
 );
 
-router.get("/trainer-clients", getTrainerClientsController);
+router.get("/trainer-clients/:id", getTrainerClientsController);
 
 export default router;

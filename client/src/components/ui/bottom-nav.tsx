@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IconButtonProps } from "@/data/type";
-import { useEffect, useState } from "react";
+import { useHydration } from "@/hooks/useHydration";
 
 interface BottomNavProps {
   items: IconButtonProps[];
@@ -10,11 +10,7 @@ interface BottomNavProps {
 
 export default function BottomNav({ items }: BottomNavProps) {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useHydration();
 
   if (!mounted) {
     return null;

@@ -287,6 +287,21 @@ export const handleAcceptOrRejectService = async (
     }
 };
 
+export const getPupilOfTrainerService = async (trainer_id : number) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/client-requests/trainer-clients/${trainer_id}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch requests for trainer-clients');
+        }
+        return await response.json();
+    } catch (error : any) {
+        throw new Error(error.message || 'Failed to fetch requests for trainer-clients');
+    }
+};
+
+
+
+
 
 
 

@@ -2,19 +2,19 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 //utils
-import Logout from "@/components/login/logout"
+import Logout from "@/components/login/logout";
 //icon
-import {ChevronLeft, RefreshCw , Funnel } from "lucide-react";
-
+import { ChevronLeft, RefreshCw, Funnel } from "lucide-react";
+import { useHydration } from "@/hooks/useHydration";
 
 const MenuHeader = () => {
-
-
   return (
     <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
       <div className="flex items-center w-full justify-center h-full relative">
-        <Logout/>
-        <h1 className="text-2xl max-[400px]:text-xl font-semibold">باشگاه بدنسازی</h1>
+        <Logout />
+        <h1 className="text-2xl max-[400px]:text-xl font-semibold">
+          باشگاه بدنسازی
+        </h1>
       </div>
     </div>
   );
@@ -23,24 +23,30 @@ const MenuHeader = () => {
 const PageHeader = () => {
   const router = useRouter();
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
+  const mounted = useHydration();
 
   const handleBack = useCallback(() => router.back(), [router]);
   const handleRefresh = useCallback(() => {
+    if (!mounted) return;
     setIsSpinning(true);
     setTimeout(() => {
       window.location.reload();
       setIsSpinning(false);
     }, 1500);
-  }, []);
+  }, [mounted]);
 
   return (
     <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
       <div className="flex items-center w-full justify-between h-full px-2">
         <RefreshCw
-          className={`max-[400px]:size-8 size-9 duration-300 ${isSpinning ? "animate-spin" : ""}`}
+          className={`max-[400px]:size-8 size-9 duration-300 ${
+            isSpinning ? "animate-spin" : ""
+          }`}
           onClick={handleRefresh}
         />
-        <h1 className="text-2xl max-[400px]:text-xl font-semibold">باشگاه بدنسازی</h1>
+        <h1 className="text-2xl max-[400px]:text-xl font-semibold">
+          باشگاه بدنسازی
+        </h1>
         <ChevronLeft
           className="max-[400px]:size-8 size-9 duration-300 active:-translate-x-1"
           onClick={handleBack}
@@ -53,22 +59,25 @@ const PageHeader = () => {
 const FilterHeader = () => {
   const router = useRouter();
 
-  const handleBack = useCallback(() => router.push('/'), [router]);
+  const handleBack = useCallback(() => router.push("/"), [router]);
 
   return (
-      <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
-        <div className="flex items-center w-full justify-between h-full px-2">
-          <Funnel fill='var(--primary)'
-              className={`max-[400px]:size-10 size-11 duration-300 scale-90`}
-              // onClick={handleRefresh}
-          />
-          <h1 className="text-2xl max-[400px]:text-xl font-semibold">باشگاه بدنسازی</h1>
-          <ChevronLeft
-              className="max-[400px]:size-8 size-9 duration-300 active:-translate-x-1"
-              onClick={handleBack}
-          />
-        </div>
+    <div className="w-full mb-12 bg-[var(--secondary)] py-4 rounded-b-4xl text-[var(--primary)]">
+      <div className="flex items-center w-full justify-between h-full px-2">
+        <Funnel
+          fill="var(--primary)"
+          className={`max-[400px]:size-10 size-11 duration-300 scale-90`}
+          // onClick={handleRefresh}
+        />
+        <h1 className="text-2xl max-[400px]:text-xl font-semibold">
+          باشگاه بدنسازی
+        </h1>
+        <ChevronLeft
+          className="max-[400px]:size-8 size-9 duration-300 active:-translate-x-1"
+          onClick={handleBack}
+        />
       </div>
+    </div>
   );
 };
 

@@ -18,7 +18,6 @@ import {
 //utils
 import Spinner from "@/components/loading/LoadingSpinner";
 import ForgotPasswordDrawer from "@/components/login/forgetPassword"
-// import { toggleFullScreen } from "@/lib/utils";
 import { setCookie } from "@/action/cookie";
 import toast from "react-hot-toast";
 //icon
@@ -116,17 +115,6 @@ const formSchema = z.object({
     }
   };
 
-  // useEffect(() => {
-  //   const handleFullScreen = () => {
-  //     toggleFullScreen();
-  //   };
-
-  //   document.addEventListener("click", handleFullScreen);
-
-  //   return () => {
-  //     document.removeEventListener("click", handleFullScreen);
-  //   };
-  // }, []);
 
   const pass = form.watch("password");
 

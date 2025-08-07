@@ -80,9 +80,27 @@ export interface Request {
     request_id: number;
     status: string;
     services: Service[]
-    client_bmi:string
+    client_bmi: string
     client_height_cm: string
-    client_weight_kg : string
+    client_weight_kg: string
+}
 
+export interface Pupil {
+    assigned_at: string
+    birth_date: string
+    bmi: string
+    created_at: string
+    first_name: string
+    gender: string
+    height_cm: string
+    id: number
+    is_active: boolean
+    is_fee_paid: boolean
+    last_name: string
+    phone: string
+    request_id: number
+    services: Service[],
+    trainer_id : number
+    weight_kg : string
 }
 

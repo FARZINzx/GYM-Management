@@ -1,7 +1,7 @@
 'use client'
 import {useEffect, useState} from "react";
 //utils
-import {toggleFullScreen, convertRoleNameToPersian} from "@/lib/utils";
+import {convertRoleNameToPersian} from "@/lib/utils";
 import Header from "@/components/ui/header";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -53,7 +53,6 @@ export default function Personnel() {
     return (
         <main
             className="min-h-screen bg-[var(--primary)] "
-            onClick={() => toggleFullScreen()}
         >
             <div className="max-w-[430px] mx-auto relative">
                 {/* Header */}
