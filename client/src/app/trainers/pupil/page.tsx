@@ -41,7 +41,7 @@ export default function PupilsOfTrainers() {
 
 
     useEffect(() => {
-        if(!trainerId) return
+        if (!trainerId) return
         fetchRequests()
     }, [trainerId]);
 
@@ -62,20 +62,22 @@ export default function PupilsOfTrainers() {
                     </div>
 
                     {/* Grid of Management Options */}
-                    {
-                        isLoading
-                            ? Array.from({length: 10}).map((_, index) => (
-                                <div
-                                    key={index}
-                                    className="w-full animate-pulse gap-1 bg-gray-500 rounded-xl h-80 duration-500">
-                                </div>
-                            ))
-                            : <div className="flex flex-col gap-3 overflow-y-scroll h-full hide-scrollbar">
-                                {
-                                    data.length > 0
-                                        ? data.map((request) => (
-                                            <div
-                                                key={request.request_id}
+                    <div
+                        className="w-full flex flex-col gap-2 hide-scrollbar max-h-[calc(100vh-210px)] overflow-y-auto">
+                        {
+                            isLoading
+                                ? Array.from({length: 10}).map((_, index) => (
+                                    <div
+                                        key={index}
+                                        className="w-full animate-pulse gap-3 bg-gray-500 rounded-xl min-h-60 duration-300">
+                                    </div>
+                                ))
+                                : <div className="flex flex-col gap-3 overflow-y-scroll h-full hide-scrollbar">
+                                    {
+                                        data.length > 0
+                                            ? data.map((request) => (
+                                                <div
+                                                    key={request.request_id}
                                                     className='flex w-full gap-2 flex-col p-2 rounded-md bg-secondary text-sm'>
                                                     <div className='w-full flex justify-between items-center'>
                                                         <p>نام و نام خانوادگی :</p>
@@ -103,7 +105,7 @@ export default function PupilsOfTrainers() {
                                                     </div>
                                                     <div className='w-full flex justify-between items-center'>
                                                         <p>جنسیت :</p>
-                                                        <p className='font-semibold'>{request.gender == 'male' ?  'مذکر' : "مونث"}</p>
+                                                        <p className='font-semibold'>{request.gender == 'male' ? 'مذکر' : "مونث"}</p>
                                                     </div>
                                                     <div className='w-full flex flex-col justify-between'>
                                                         <p>خدمت های خواسته شده :</p>
@@ -114,12 +116,14 @@ export default function PupilsOfTrainers() {
                                                         ))}</div>
                                                     </div>
 
-                                            </div>
-                                        ))
-                                        : <div className='text-secondary text-lg text-center'>شاگردی برای شما وجود ندارد</div>
-                                }
-                            </div>
-                    }
+                                                </div>
+                                            ))
+                                            : <div className='text-secondary text-lg text-center'>شاگردی برای شما وجود
+                                                ندارد</div>
+                                    }
+                                </div>
+                        }
+                    </div>
 
                 </div>
             </div>

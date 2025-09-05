@@ -34,16 +34,19 @@ export default function Register() {
 
 
     const formSchema = z.object({
-        name: z.string({required_error: "نام وارد نشده است"}),
-        familyName: z.string({required_error: "نام خانوادگی وارد نشده است"}),
+        name: z.string({required_error: "نام وارد نشده است"})
+            .regex(/^[a-zA-Z\u0600-\u06FF\s]+$/, {message: "نام فقط باید شامل حروف فارسی یا انگلیسی باشد"}),
+        familyName: z.string({required_error: "نام خانوادگی وارد نشده است"})
+            .regex(/^[a-zA-Z\u0600-\u06FF\s]+$/, {message: "نام خانوادگی فقط باید شامل حروف فارسی یا انگلیسی باشد"}),
         phone: z.string({required_error: "شماره تلفن وارد نشده است"})
             .min(11, {message: "شماره تلفن باید ۱۱ رقم باشد"})
+            .regex(/^09[0-9]+$/, {message: "شماره تلفن باید با 09 شروع شود و فقط شامل اعداد باشد"})
             .regex(/^[0-9]+$/, {message: "شماره تلفن فقط باید شامل اعداد باشد"}),
         birth: z
-            .string({ required_error: "تاریخ تولد وارد نشده است" })
+            .string({required_error: "تاریخ تولد وارد نشده است"})
             .refine(val => {
                 if (!val) return false;
-                const date = new DateObject({ date: val, calendar: persian , locale: persian_fa });
+                const date = new DateObject({date: val, calendar: persian, locale: persian_fa});
                 const year = date.year;
 
                 return year >= 1315 && year <= 1395;
@@ -53,17 +56,18 @@ export default function Register() {
         ,
         weight: z.preprocess(
             (val) => Number(val) || undefined,
-            z.number({invalid_type_error: "وزن باید عدد باشد"})
-                .min(1, {message: "وزن باید بزرگ‌تر از ۰ باشد"})
-                .max(250, {message: "وزن نمی‌تواند بیشتر از ۳ رقم باشد"})
-                .optional()
+            z.number({
+                invalid_type_error: "لطفاً وزن را به عدد وارد کنید",
+                required_error: "لطفاً وزن خود را وارد کنید"
+            })
+                .min(20, {message: "وزن باید حداقل ۲۰ کیلوگرم باشد"})
+                .max(999, {message: "وزن نمی‌تواند بیشتر از ۹۹۹ کیلوگرم باشد"})
         ),
         height: z.preprocess(
             (val) => Number(val) || undefined,
-            z.number({invalid_type_error: "قد باید عدد باشد"})
-                .min(50, {message: "قد باید حداقل ۵۰ سانتیمتر باشد"})
-                .max(250, {message: "قد نمی‌تواند بیشتر از ۳ رقم باشد"})
-                .optional()
+            z.number({invalid_type_error: "لطفاً قد را به عدد وارد کنید", required_error: "لطفاً قد خود را وارد کنید"})
+                .min(30, {message: "قد باید حداقل ۳۰ سانتیمتر باشد"})
+                .max(300, {message: "قد نمی‌تواند بیشتر از ۳۰۰ سانتیمتر باشد"})
         ),
         gender: z.enum(["male", "female"], {required_error: "جنسیت انتخاب نشده است"}),
     });
@@ -166,7 +170,7 @@ export default function Register() {
                     style: {background: "red", color: "#fff"}
                 });
             }
-        } catch (error : any) {
+        } catch (error: any) {
             toast.error(error.message || 'مشکل در ارتباط با سرور', {
                 style: {background: "red", color: "#fff"}
             });
@@ -201,7 +205,7 @@ export default function Register() {
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}
-                          className="sm-plus:px-0 space-y-6 bg-secondary p-6 mb-2 rounded-xl">
+                          className="sm-plus:px-0 space-y-6 bg-secondary max-w-[279px] p-6 mb-2 rounded-xl">
                         {/* Name Field */}
                         <FormField
                             name="name"
@@ -216,8 +220,12 @@ export default function Register() {
                                         <input
                                             {...field}
                                             type="text"
-                                            dir="ltr"
+                                            dir="rtl"
                                             maxLength={20}
+                                            pattern="[a-zA-Z\u0600-\u06FF\s]*"
+                                            onInput={(e) => {
+                                                e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '');
+                                            }}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -240,8 +248,12 @@ export default function Register() {
                                         <input
                                             {...field}
                                             type="text"
-                                            dir="ltr"
+                                            dir="rtl"
                                             maxLength={30}
+                                            pattern="[a-zA-Z\u0600-\u06FF\s]*"
+                                            onInput={(e) => {
+                                                e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '');
+                                            }}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -265,9 +277,17 @@ export default function Register() {
                                             {...field}
                                             type="tel"
                                             dir="ltr"
-                                            pattern="[0-9]*"
+                                            pattern="09[0-9]*"
                                             maxLength={11}
                                             inputMode="numeric"
+                                            onInput={(e) => {
+                                                // Ensure it starts with 09 and only contains numbers
+                                                if (!e.currentTarget.value.startsWith('09')) {
+                                                    e.currentTarget.value = '09' + e.currentTarget.value.replace(/[^0-9]/g, '').substring(2);
+                                                } else {
+                                                    e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                                                }
+                                            }}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -293,11 +313,20 @@ export default function Register() {
                                             <DatePicker
                                                 value={
                                                     field.value
-                                                        ? new DateObject({ date: field.value, calendar: persian, locale: persian_fa })
+                                                        ? new DateObject({
+                                                            date: field.value,
+                                                            calendar: persian,
+                                                            locale: persian_fa
+                                                        })
                                                         : ""
                                                 }
 
-                                                currentDate={new DateObject({ year: 1395, month: 1, day: 1, calendar: persian })}
+                                                currentDate={new DateObject({
+                                                    year: 1395,
+                                                    month: 1,
+                                                    day: 1,
+                                                    calendar: persian
+                                                })}
                                                 onChange={(date) => {
                                                     if (date?.isValid) {
                                                         const formatted = date.format("YYYY/MM/DD");
@@ -354,10 +383,15 @@ export default function Register() {
                                             {...field}
                                             type="number"
                                             dir="ltr"
-                                            min={0}
-                                            max={250}
-                                            value={field.value ?? ""}
+                                            min={20}
+                                            max={400}
+                                            step="0.1"
+                                            value={field.value}
                                             onChange={(e) => field.onChange(e.target.value)}
+                                            onInput={(e) => {
+                                                // Allow only numbers and decimal point
+                                                e.currentTarget.value = e.currentTarget.value.replace(/[^0-9.]/g, '');
+                                            }}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -381,10 +415,14 @@ export default function Register() {
                                             {...field}
                                             type="number"
                                             dir="ltr"
-                                            min={0}
-                                            max={250}
-                                            value={field.value ?? ""}
+                                            min={30}
+                                            max={300}
+                                            step="0.1"
+                                            value={field.value}
                                             onChange={(e) => field.onChange(e.target.value)}
+                                            onInput={(e) => {
+                                                e.currentTarget.value = e.currentTarget.value.replace(/[^0-9.]/g, '');
+                                            }}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
