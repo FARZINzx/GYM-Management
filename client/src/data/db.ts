@@ -58,7 +58,7 @@ export const ManagerPanelItem: IconButtonProps[] = [
     },
       {
         id: 11,
-        label: "حضور/غیاب",
+        label: "ثبت تردد",
         icon: ClockFading,
         href: '/attendance'
     },

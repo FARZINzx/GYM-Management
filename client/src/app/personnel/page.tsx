@@ -81,31 +81,34 @@ export default function Personnel() {
                                 </p>
                             ))}
                         </div>
-                        {
-                            isLoading
-                                ? Array.from({length: 10}).map((_, index) => (
-                                    <div
-                                        key={index}
-                                        className="w-full animate-pulse gap-1 bg-gray-500 rounded-xl h-10 duration-500">
+                        <div className="w-full flex flex-col gap-2 hide-scrollbar max-h-[calc(100vh-220px)] overflow-y-auto">
+
+                            {
+                                isLoading
+                                    ? Array.from({length: 10}).map((_, index) => (
+                                        <div
+                                            key={index}
+                                            className="w-full animate-pulse gap-1 bg-gray-500 rounded-xl h-10 duration-500">
+                                        </div>
+                                    ))
+                                    : <div className="flex flex-col gap-2 overflow-y-scroll h-full hide-scrollbar">
+                                        {personnels.map((personnel) => (
+                                            <Link
+                                                href={`/personnel/${personnel.id}`}
+                                                key={personnel.id}
+                                                className="w-full place-items-center place-content-center grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl py-2 active:scale-90 duration-500 text-sm min-w-[380]:text-base"
+                                            >
+                                                <p className="text-center">{personnel.first_name} {personnel.last_name}</p>{" "}
+
+                                                <div className="text-[var(--primary)] text-center font-semibold ">
+                                                    <p>{convertRoleNameToPersian(personnel.role_name)}</p>
+                                                </div>
+
+                                            </Link>
+                                        ))}
                                     </div>
-                                ))
-                                : <div className="flex flex-col gap-2 overflow-y-scroll h-full hide-scrollbar">
-                                    {personnels.map((personnel) => (
-                                        <Link
-                                            href={`/personnel/${personnel.id}`}
-                                            key={personnel.id}
-                                            className="w-full place-items-center place-content-center grid grid-cols-2 gap-1 bg-[var(--secondary)] rounded-xl py-2 active:scale-90 duration-500 text-sm min-w-[380]:text-base"
-                                        >
-                                            <p className="text-center">{personnel.first_name} {personnel.last_name}</p>{" "}
-
-                                            <div className="text-[var(--primary)] text-center font-semibold ">
-                                                <p>{convertRoleNameToPersian(personnel.role_name)}</p>
-                                            </div>
-
-                                        </Link>
-                                    ))}
-                                </div>
-                        }
+                            }
+                        </div>
 
                     </div>
                 </div>

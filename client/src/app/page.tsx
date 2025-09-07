@@ -54,8 +54,8 @@ export default function Home() {
       <div className="max-w-[430px] mx-auto">
         {/* Header */}
         <Header type="menu" />
-        <div className="flex flex-col gap-12 px-10">
-          <h2 className="text-3xl max-[400px]:text-2xl text-[var(--secondary)] text-center border-b border-[var(--secondary)] pb-2">
+        <div className="flex flex-col gap-6 px-10">
+          <h2 className="text-3xl max-[400px]:text-2xl text-[var(--secondary)] text-center border-b border-[var(--secondary)]">
             {role === "manager"
               ? " پنل مدیریت"
               : role === "receptionist"
@@ -65,6 +65,7 @@ export default function Home() {
               : "پنل مربی"}
           </h2>
           {/* Grid of Management Options */}
+          <div className="w-full flex flex-col gap-2 hide-scrollbar max-h-[calc(100vh-220px)] hide-scrollbar overflow-y-auto">
           <div className="grid grid-cols-2 gap-4 pb-2 ">
             {role === "manager"
               ? ManagerPanelItem.map((item: IconButtonProps) => (
@@ -105,6 +106,7 @@ export default function Home() {
                     key={item.id}
                   />
                 ))}
+          </div>
           </div>
         </div>
       </div>

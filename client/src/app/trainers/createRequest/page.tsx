@@ -55,6 +55,7 @@ export default function RequestTrainer() {
     const formSchema = z.object({
         client_phone: z.string({required_error: "شماره تلفن وارد نشده است"})
             .min(11, {message: "شماره تلفن باید ۱۱ رقم باشد"})
+            .regex(/^09[0-9]+$/, {message: "شماره تلفن باید با 09 شروع شود و فقط شامل اعداد باشد"})
             .regex(/^[0-9]+$/, {message: "شماره تلفن فقط باید شامل اعداد باشد"}),
         services: z.array(z.number()).min(1, "حداقل یک سرویس باید انتخاب شود"),
         notes: z.string().optional()
@@ -83,7 +84,7 @@ export default function RequestTrainer() {
                     client_phone: values.client_phone,
                     services: values.services,
                     notes: values.notes,
-                    created_by : id
+                    created_by: id
                 }),
             });
 
@@ -97,8 +98,8 @@ export default function RequestTrainer() {
                 setSelectedServices([]);
                 router.push("/"); // Or wherever you want to redirect
             } else {
-                toast.error( data.message || 'خطایی در خواست رخ داده است', {
-                    style: {background: "red", color: "#fff",fontSize:"14px"}
+                toast.error(data.message || 'خطایی در خواست رخ داده است', {
+                    style: {background: "red", color: "#fff", fontSize: "14px"}
                 });
             }
         } catch (error: any) {
@@ -152,9 +153,16 @@ export default function RequestTrainer() {
                                             {...field}
                                             type="tel"
                                             dir="ltr"
-                                            pattern="[0-9]*"
+                                            pattern="09[0-9]*"
                                             maxLength={11}
                                             inputMode="numeric"
+                                            onInput={(e) => {
+                                                if (!e.currentTarget.value.startsWith('09')) {
+                                                    e.currentTarget.value = '09' + e.currentTarget.value.replace(/[^0-9]/g, '').substring(2);
+                                                } else {
+                                                    e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                                                }
+                                            }}
                                             className="h-11 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 text-[var(--primary)] outline-0"
                                         />
                                     </FormControl>
@@ -176,6 +184,7 @@ export default function RequestTrainer() {
                                     <FormControl>
                                         <textarea
                                             {...field}
+                                            maxLength={150}
                                             dir="rtl"
                                             className="h-20 w-full rounded-lg border border-[var(--primary)] bg-transparent px-3 py-2 text-[var(--primary)] outline-0"
                                         />
@@ -191,7 +200,7 @@ export default function RequestTrainer() {
                             name="services"
                             render={({field}) => (
                                 <FormItem className="flex flex-col">
-                                    <div className="text-[var(--primary)] mb-2">سرویس‌های مورد نیاز:</div>
+                                    <div className="text-[var(--primary)]">سرویس‌های مورد نیاز:</div>
                                     <Popover open={open} onOpenChange={setOpen}>
                                         <PopoverTrigger asChild className="bg-secondary">
                                             <FormControl>
