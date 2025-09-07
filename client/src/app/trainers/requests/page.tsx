@@ -47,7 +47,7 @@ export default function Requests() {
             if (response.success) {
                 fetchRequests()
                 setIsStatusLoading(false)
-                toast.success(response.message, {
+                toast.success(response.message || "درخواست با موفقیت انجام شد", {
                     style: {
                         background: "#31C440",
                         color: "#fff",
