@@ -1,0 +1,13 @@
+Manager :
+user : farzin
+pass : farzin123
+
+Trainer :
+user : parham
+pass : parham123
+اولین معلم : امینی
+
+Reception :
+user : ali
+pass : ali12345
+فیلم : جیمز
